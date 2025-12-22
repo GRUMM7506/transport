@@ -19,7 +19,8 @@ const CONFIG = {
         ZOOM_STEP: 1.3,
         DOUBLE_CLICK_ZOOM: 2,
         PATH_SIMPLIFICATION_TOLERANCE: 3, // НОВОЕ: для упрощения путей маршрутов
-        ANIMATION_DURATION: 300
+        ANIMATION_DURATION: 300,
+        RESOLUTION: 800            // НОВОЕ: для управления детализацией отрисовки
     },
 
     // Визуальные настройки - УЛУЧШЕНО

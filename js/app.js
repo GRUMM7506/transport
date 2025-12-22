@@ -812,10 +812,14 @@ window.openSettings = function() {
     // Устанавливаем текущие значения
     document.getElementById('inpRadius').value = CONFIG.VISUAL.STOP_RADIUS;
     document.getElementById('inpZoom').value = CONFIG.MAP.MAX_ZOOM;
-    
+    document.getElementById('inpResolution').value = CONFIG.MAP.RESOLUTION;
+    document.getElementById('inpPathSimplification').value = CONFIG.MAP.PATH_SIMPLIFICATION;
+
     // Обновляем цифры
     document.getElementById('lblRadius').innerText = CONFIG.VISUAL.STOP_RADIUS;
     document.getElementById('lblZoom').innerText = CONFIG.MAP.MAX_ZOOM;
+    document.getElementById('lblResolution').innerText = CONFIG.MAP.RESOLUTION;
+    document.getElementById('lblPathSimplification').innerText = CONFIG.MAP.PATH_SIMPLIFICATION;
 };
 
 // Обновление цифр при перетаскивании
@@ -825,11 +829,19 @@ document.getElementById('inpRadius').oninput = function() {
 document.getElementById('inpZoom').oninput = function() {
     document.getElementById('lblZoom').innerText = this.value;
 };
+document.getElementById('inpResolution').oninput = function() {
+    document.getElementById('lblResolution').innerText = this.value;
+};
+document.getElementById('inpPathSimplification').oninput = function() {
+    document.getElementById('lblPathSimplification').innerText = this.value;
+}
 
 window.applySettings = function() {
     // 1. Сохраняем в конфиг
     CONFIG.VISUAL.STOP_RADIUS = parseFloat(document.getElementById('inpRadius').value);
     CONFIG.MAP.MAX_ZOOM = parseFloat(document.getElementById('inpZoom').value);
+    CONFIG.MAP.RESOLUTION = parseFloat(document.getElementById('inpResolution').value);
+    CONFIG.MAP.PATH_SIMPLIFICATION = parseFloat(document.getElementById('inpPathSimplification').value);
 
     // 2. Перерисовываем карту (вызываем твой метод отрисовки)
     // Предполагаю, что DataManager доступен глобально

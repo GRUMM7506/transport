@@ -572,8 +572,15 @@ const RouterManager = {
 // Глобальные функции для UI
 function togglePlanner() {
     const planner = document.getElementById('routePlanner');
-    if (planner.style.display === 'none' || !planner.style.display) {
+    const isHidden = planner.style.display === 'none' || !planner.style.display;
+    
+    if (isHidden) {
         planner.style.display = 'block';
+        // На мобилках скрываем боковую панель поиска, если она открыта
+        if (window.innerWidth <= 768) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) sidebar.style.display = 'none'; 
+        }
     } else {
         planner.style.display = 'none';
     }

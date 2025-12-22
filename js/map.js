@@ -21,11 +21,17 @@ const MapManager = {
     lastTouchDistance: 0,
     initialPinchScale: 1,
     isPinching: false,
+    lastTouchX: 0,
+    lastTouchY: 0,
 
     init() {
         ConfigHelper.log('Инициализация карты...');
+
         this.svg = document.getElementById('transportMap');
         if (!this.svg) return false;
+
+        this.svg.setAttribute('viewBox', '0 0 400 400'); 
+        this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
         // Создаем главную группу
         this.mapGroup = document.getElementById('mainGroup');
@@ -33,7 +39,7 @@ const MapManager = {
             this.mapGroup = Utils.createSVGElement('g', { id: 'mainGroup' });
             this.svg.appendChild(this.mapGroup);
         }
-
+    
         // 1. Слой для маршрутов (снизу)
         this.routesGroup = document.getElementById('routesGroup');
         if (!this.routesGroup) {
@@ -49,6 +55,11 @@ const MapManager = {
         }
 
         this.initControls();
+
+        const rect = this.svg.getBoundingClientRect();
+        console.log('SVG Real Size:', rect.width, rect.height);
+        console.log('SVG ViewBox:', this.svg.getAttribute('viewBox'));
+
         return true;
     },
 
@@ -110,37 +121,32 @@ const MapManager = {
 
     drawScheme(stops, routes) {
         ConfigHelper.log('Отрисовка схемы...');
-        
-        if (!stops || stops.length === 0) {
-            ConfigHelper.warn('Нет остановок для отрисовки');
-            return;
-        }
-        
+        if (!stops || stops.length === 0) return;
+
         this.clear();
+
+        // ВАЖНО: Вместо clientWidth/Height используем константу
+        const virtualSize = CONFIG.MAP.RESOLUTION; 
         
-        const width = this.svg.clientWidth;
-        const height = this.svg.clientHeight;
+        // Устанавливаем viewBox, чтобы SVG знал, что внутри него сетка 2000x2000
+        this.svg.setAttribute('viewBox', `0 0 ${virtualSize} ${virtualSize}`);
+        this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+        // Теперь создаем трансформатор координат на базе этого виртуального квадрата
         this.transformer = Utils.createCoordinateTransformer(
-            stops, width, height, CONFIG.MAP.PADDING
+            stops, virtualSize, virtualSize, CONFIG.MAP.PADDING
         );
-        
+
+        // Рассчитываем координаты остановок в системе 2000x2000
         stops.forEach(stop => {
             const coords = this.transformer.toScheme(stop.latitude, stop.longitude);
             stop.x = coords.x;
             stop.y = coords.y;
         });
-        
-        // ИСПРАВЛЕНО: правильный порядок отрисовки
-        // 1. Сначала линии маршрутов
+
         this.drawRoutes(stops, routes);
-        
-        // 2. Потом точки остановок
         this.drawStops(stops);
-        
-        // 3. Обновляем легенду
         this.updateLegend(routes);
-        
-        ConfigHelper.log('Схема отрисована');
     },
 
     drawRoutes(stops, routes) {
@@ -747,6 +753,9 @@ const MapManager = {
     },
 
     handleTouchMove(e) {
+        // Обязательно блокируем стандартное поведение браузера
+        if (e.cancelable) e.preventDefault();
+
         if (e.touches.length === 1 && this.isDragging && !this.isPinching) {
             // Двигаем карту
             this.translateX = e.touches[0].clientX - this.dragStartX;
@@ -754,21 +763,22 @@ const MapManager = {
             this.updateTransform();
         } else if (e.touches.length === 2 && this.isPinching) {
             // Зумим карту
-            e.preventDefault();
             const currentDistance = this.getTouchDistance(e.touches);
             if (this.lastTouchDistance > 0) {
                 const ratio = currentDistance / this.lastTouchDistance;
+                // Ограничиваем зум согласно конфигу
                 const newScale = Math.min(Math.max(this.initialPinchScale * ratio, CONFIG.MAP.MIN_ZOOM), CONFIG.MAP.MAX_ZOOM);
                 
-                // Зум к центру между пальцами
-                const center = this.getTouchCenter(e.touches);
-                const scaleChange = newScale / this.scale;
-                
-                this.translateX = center.x - (center.x - this.translateX) * scaleChange;
-                this.translateY = center.y - (center.y - this.translateY) * scaleChange;
-                this.scale = newScale;
-                
-                this.updateTransform();
+                if (newScale !== this.scale) {
+                    const center = this.getTouchCenter(e.touches);
+                    const scaleChange = newScale / this.scale;
+                    
+                    this.translateX = center.x - (center.x - this.translateX) * scaleChange;
+                    this.translateY = center.y - (center.y - this.translateY) * scaleChange;
+                    this.scale = newScale;
+                    
+                    this.updateTransform();
+                }
             }
         }
     },

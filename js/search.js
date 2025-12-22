@@ -293,8 +293,18 @@ const SearchManager = {
      * Выбор остановки из результатов
      */
     selectStop(stop) {
+        // Скрываем клавиатуру на мобильных устройствах
+        if (this.searchInput) {
+            this.searchInput.blur();
+        }
+
         // Подсвечиваем в результатах
         this.highlightStop(stop);
+
+        if (this.searchResults) {
+            this.searchResults.innerHTML = ''; 
+            // Или можно добавить класс .hidden, если он прописан в CSS
+        }
         
         // Передаем в MapManager
         if (window.MapManager) {

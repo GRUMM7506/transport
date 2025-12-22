@@ -176,6 +176,15 @@ h2.sidebar-title {
 /* ============================================
    РЕЗУЛЬТАТЫ ПОИСКА
    ============================================ */
+#searchInput {
+    font-size: 16px; /* Предотвращает автоматический зум в iOS Safari */
+}
+
+/* Скроллбары для результатов поиска, чтобы они не «прыгали» */
+#searchResults {
+    -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+}
+
 .search-results {
     flex: 1;
     overflow-y: auto;
@@ -491,6 +500,14 @@ h2.sidebar-title {
     width: 100%;
     height: 100%;
     cursor: grab;
+    touch-action: none; /* ЭТО ВАЖНО: блокирует прокрутку страницы браузером, когда водишь пальцем по карте */
+}
+
+#transportMap {
+    width: 100%;
+    height: 100vh; /* Занимать всю высоту экрана */
+    display: block;
+    touch-action: none; /* Важно для мобилок, чтобы не скроллилась вся страница */
 }
 
 .transport-map:active {
@@ -1201,4 +1218,58 @@ h2.sidebar-title {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+/* Чтобы подсказки (suggestions) тоже были темными */
+#suggestions {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.suggestion-item:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+.suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+/* Общие стили планировщика */
+/* #routePlanner {
+    position: fixed;
+    z-index: 2000;  
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+} */
+
+/* Мобильная версия (на весь экран или снизу) */
+@media (max-width: 768px) {
+    #routePlanner {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .planner-inputs input {
+        font-size: 16px; /* Чтобы iOS не зумил при вводе */
+        padding: 12px;
+    }
+}
+
+/* ПК версия */
+@media (min-width: 769px) {
+    #routePlanner {
+        top: 20px;
+        right: 80px; /* Чтобы не перекрывал кнопки зума */
+        width: 320px;
+    }
 }
