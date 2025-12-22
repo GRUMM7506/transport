@@ -1,0 +1,1418 @@
+{
+  "stops": [
+    {
+      "stopName": "Мост 46мкр",
+      "basePoint": {
+        "latitude": 38.52477764765857,
+        "longitude": 68.77312239568631
+      }
+    },
+    {
+      "stopName": "Дарвоза Колхоз Россия",
+      "basePoint": {
+        "latitude": 38.52976152673906,
+        "longitude": 68.77242254726697
+      }
+    },
+    {
+      "stopName": "Москвич Прокат",
+      "basePoint": {
+        "latitude": 38.52952116895405,
+        "longitude": 68.77858842047017
+      }
+    },
+    {
+      "stopName": "Коктейл ЕЩЁ",
+      "basePoint": {
+        "latitude": 38.529517499282676,
+        "longitude": 68.78306454009685
+      }
+    },
+    {
+      "stopName": "Таджеро",
+      "basePoint": {
+        "latitude": 38.52939435269279,
+        "longitude": 68.78657136862722
+      }
+    },
+    {
+      "stopName": "Школа \"119\"",
+      "basePoint": {
+        "latitude": 38.52916883068108,
+        "longitude": 68.79112891809079
+      }
+    },
+    {
+      "stopName": "Правда",
+      "basePoint": {
+        "latitude": 38.52998524111463,
+        "longitude": 68.80077583366376
+      }
+    },
+    {
+      "stopName": "Амири",
+      "basePoint": {
+        "latitude": 38.53114250450196,
+        "longitude": 68.8071161948197
+      }
+    },
+    {
+      "stopName": "Чапаев",
+      "basePoint": {
+        "latitude": 38.530468253017105,
+        "longitude": 68.81218519156218
+      }
+    },
+    {
+      "stopName": "Панчруд",
+      "basePoint": {
+        "latitude": 38.5292243615021,
+        "longitude": 68.78999752997348
+      }
+    },
+    {
+      "stopName": "Больница",
+      "basePoint": {
+        "latitude": 38.529219115835026,
+        "longitude": 68.79015980361889
+      }
+    },
+    {
+      "stopName": "Дмитров",
+      "basePoint": {
+        "latitude": 38.5264114063122,
+        "longitude": 68.79362620221049
+      }
+    },
+    {
+      "stopName": "Южный",
+      "basePoint": {
+        "latitude": 38.539295,
+        "longitude": 68.771716
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Содот\"",
+      "basePoint": {
+        "latitude": 38.525039,
+        "longitude": 68.762855
+      }
+    },
+    {
+      "stopName": "Парк Абулкосима Фирдавси",
+      "basePoint": {
+        "latitude": 38.52516231591371,
+        "longitude": 68.75463390647698
+      }
+    },
+    {
+      "stopName": "ТЦ \"Мардон\"",
+      "basePoint": {
+        "latitude": 38.52796162394684,
+        "longitude": 68.74960322120302
+      }
+    },
+    {
+      "stopName": "Институт искусств",
+      "basePoint": {
+        "latitude": 38.529477532563334,
+        "longitude": 68.7502824909809
+      }
+    },
+    {
+      "stopName": "ДСК",
+      "basePoint": {
+        "latitude": 38.532453716508385,
+        "longitude": 68.75170838919307
+      }
+    },
+    {
+      "stopName": "Школа № 38",
+      "basePoint": {
+        "latitude": 38.53614829718432,
+        "longitude": 68.75342199197927
+      }
+    },
+    {
+      "stopName": "Микрорайон \"1-й Советский\"",
+      "basePoint": {
+        "latitude": 38.539339,
+        "longitude": 68.754905
+      }
+    },
+    {
+      "stopName": "Экскаваторный ремонтный завод",
+      "basePoint": {
+        "latitude": 38.54428500453422,
+        "longitude": 68.75541407060904
+      }
+    },
+    {
+      "stopName": "Ресторан \"Океан\"",
+      "basePoint": {
+        "latitude": 38.546150658278194,
+        "longitude": 68.75108508119023
+      }
+    },
+    {
+      "stopName": "Микрорайон 33",
+      "basePoint": {
+        "latitude": 38.54620786618586,
+        "longitude": 68.74314227980106
+      }
+    },
+    {
+      "stopName": "Улица Дилкушо",
+      "basePoint": {
+        "latitude": 38.54706047396745,
+        "longitude": 68.74149403551165
+      }
+    },
+    {
+      "stopName": "Управление ГАИ",
+      "basePoint": {
+        "latitude": 38.55141211282876,
+        "longitude": 68.74154115576584
+      }
+    },
+    {
+      "stopName": "Рынок \"Фаровон\"",
+      "basePoint": {
+        "latitude": 38.556228,
+        "longitude": 68.741445
+      }
+    },
+    {
+      "stopName": "Молочный комбинат \"Шири-Душанбе\"",
+      "basePoint": {
+        "latitude": 38.558799372644906,
+        "longitude": 68.74147346850295
+      }
+    },
+    {
+      "stopName": "Кондитерская фабрика \"Ширин\"",
+      "basePoint": {
+        "latitude": 38.5621970394729,
+        "longitude": 68.74150674808523
+      }
+    },
+    {
+      "stopName": "Станция \"Масложиркомбинат\"",
+      "basePoint": {
+        "latitude": 38.566983479040566,
+        "longitude": 68.74115353635801
+      }
+    },
+    {
+      "stopName": "Микрорайон 84",
+      "basePoint": {
+        "latitude": 38.56991,
+        "longitude": 68.741472
+      }
+    },
+    {
+      "stopName": "Микрорайон 103",
+      "basePoint": {
+        "latitude": 38.572818841355044,
+        "longitude": 68.74146784529908
+      }
+    },
+    {
+      "stopName": "Микрорайон 101",
+      "basePoint": {
+        "latitude": 38.57854167374825,
+        "longitude": 68.74141175838484
+      }
+    },
+    {
+      "stopName": "111-й микрорайон",
+      "basePoint": {
+        "latitude": 38.58310125278467,
+        "longitude": 68.73759698528512
+      }
+    },
+    {
+      "stopName": "Поворот улицы Гиссар",
+      "basePoint": {
+        "latitude": 38.5825461071377,
+        "longitude": 68.73116280414109
+      }
+    },
+    {
+      "stopName": "113-й микрорайон",
+      "basePoint": {
+        "latitude": 38.582237593101574,
+        "longitude": 68.72754378110768
+      }
+    },
+    {
+      "stopName": "Шаҳраки 115 / Зарнисор",
+      "basePoint": {
+        "latitude": 38.581638514300785,
+        "longitude": 68.72073709808981
+      }
+    },
+    {
+      "stopName": "117-й микрорайон",
+      "basePoint": {
+        "latitude": 38.58102898820881,
+        "longitude": 68.71449821001781
+      }
+    },
+    {
+      "stopName": "Терминал \"Западные ворота\"",
+      "basePoint": {
+        "latitude": 38.58333688941983,
+        "longitude": 68.69979119029163
+      }
+    },
+    {
+      "stopName": "Национальный парк",
+      "basePoint": {
+        "latitude": 38.580781354492515,
+        "longitude": 68.69349940814544
+      }
+    },
+    {
+      "stopName": "Посёлок \"Чоряккорон\"",
+      "basePoint": {
+        "latitude": 38.575846796718366,
+        "longitude": 68.68222265748972
+      }
+    },
+    {
+      "stopName": "Западные ворота микрорайон \"Заравшон - 2\"",
+      "basePoint": {
+        "latitude": 38.58395261538082,
+        "longitude": 68.70733406341614
+      }
+    },
+    {
+      "stopName": "Микрорайон 117",
+      "basePoint": {
+        "latitude": 38.58532909452465,
+        "longitude": 68.71201544377026
+      }
+    },
+    {
+      "stopName": "Поликлиника № 14",
+      "basePoint": {
+        "latitude": 38.586844074160744,
+        "longitude": 68.71489400809548
+      }
+    },
+    {
+      "stopName": "Микрорайон \"Заравшон - 1\"",
+      "basePoint": {
+        "latitude": 38.587973818260835,
+        "longitude": 68.72046879501029
+      }
+    },
+    {
+      "stopName": "Микрорайон 114, школа № 96",
+      "basePoint": {
+        "latitude": 38.58860810876691,
+        "longitude": 68.72459556794843
+      }
+    },
+    {
+      "stopName": "Микрорайон \"Испечак - 2\"",
+      "basePoint": {
+        "latitude": 38.589560611491414,
+        "longitude": 68.7293585281239
+      }
+    },
+    {
+      "stopName": "Клиника лабаратория Диамед",
+      "basePoint": {
+        "latitude": 38.582305928848704,
+        "longitude": 68.73414080958094
+      }
+    },
+    {
+      "stopName": "Масложиркомбинат",
+      "basePoint": {
+        "latitude": 38.55844139324476,
+        "longitude": 68.7409457591663
+      }
+    },
+    {
+      "stopName": "Микрорайон 33\r",
+      "basePoint": {
+        "latitude": 38.5462128146343,
+        "longitude": 68.74553806064354
+      }
+    },
+    {
+      "stopName": "Ресторан \"Океан\"\r",
+      "basePoint": {
+        "latitude": 38.54613842681526,
+        "longitude": 68.7512788041455
+      }
+    },
+    {
+      "stopName": "Математический колледж",
+      "basePoint": {
+        "latitude": 38.526386906010316,
+        "longitude": 68.75006215002689
+      }
+    },
+    {
+      "stopName": "Терминал \"Южный\"",
+      "basePoint": {
+        "latitude": 38.4677909949211,
+        "longitude": 68.74041490044739
+      }
+    },
+    {
+      "stopName": "Поворот на посёлок \"Кахрамон\"",
+      "basePoint": {
+        "latitude": 38.48104160061813,
+        "longitude": 68.74691647329854
+      }
+    },
+    {
+      "stopName": "Поворот на просёлок \"Гулпарвар\"",
+      "basePoint": {
+        "latitude": 38.48553201752818,
+        "longitude": 68.74914911296925
+      }
+    },
+    {
+      "stopName": "АЗС",
+      "basePoint": {
+        "latitude": 38.49864150918312,
+        "longitude": 68.7554096312421
+      }
+    },
+    {
+      "stopName": "Рынок \"Корвон\"",
+      "basePoint": {
+        "latitude": 38.50461971450323,
+        "longitude": 68.75625095275635
+      }
+    },
+    {
+      "stopName": "Улица Касымова",
+      "basePoint": {
+        "latitude": 38.511730168606206,
+        "longitude": 68.75663106736381
+      }
+    },
+    {
+      "stopName": "Микрорайон 63",
+      "basePoint": {
+        "latitude": 38.51296490939001,
+        "longitude": 68.76207939058595
+      }
+    },
+    {
+      "stopName": "Аптека \"Гарант\"",
+      "basePoint": {
+        "latitude": 38.517946493983914,
+        "longitude": 68.76250642191152
+      }
+    },
+    {
+      "stopName": "Микрорайон 61",
+      "basePoint": {
+        "latitude": 38.51944313252207,
+        "longitude": 68.77062856379624
+      }
+    },
+    {
+      "stopName": "Медицинский центр \"Истиклол\"",
+      "basePoint": {
+        "latitude": 38.53703730626913,
+        "longitude": 68.76821503205845
+      }
+    },
+    {
+      "stopName": "Школа № 72",
+      "basePoint": {
+        "latitude": 38.55353428283548,
+        "longitude": 68.76904214283027
+      }
+    },
+    {
+      "stopName": "Школа № 52",
+      "basePoint": {
+        "latitude": 38.564125633589335,
+        "longitude": 68.78511443269096
+      }
+    },
+    {
+      "stopName": "Таджикпечать № 1",
+      "basePoint": {
+        "latitude": 38.57020630468197,
+        "longitude": 68.78761952528428
+      }
+    },
+    {
+      "stopName": "Сафина",
+      "basePoint": {
+        "latitude": 38.57124608046952,
+        "longitude": 68.7892184264286
+      }
+    },
+    {
+      "stopName": "Телефонная горсеть",
+      "basePoint": {
+        "latitude": 38.57243593604803,
+        "longitude": 68.79101234643659
+      }
+    },
+    {
+      "stopName": "Сквер им. Хафиза Шерози",
+      "basePoint": {
+        "latitude": 38.57372949043375,
+        "longitude": 68.79304497446185
+      }
+    },
+    {
+      "stopName": "Родильный дом № 1",
+      "basePoint": {
+        "latitude": 38.57641410070433,
+        "longitude": 68.79366996275284
+      }
+    },
+    {
+      "stopName": "Стадион \"Спартак\"",
+      "basePoint": {
+        "latitude": 38.58003841959416,
+        "longitude": 68.79375847039837
+      }
+    },
+    {
+      "stopName": "Посольство Великобритании",
+      "basePoint": {
+        "latitude": 38.58389866560935,
+        "longitude": 68.79385385640131
+      }
+    },
+    {
+      "stopName": "Налоговая инспекция",
+      "basePoint": {
+        "latitude": 38.58666171728907,
+        "longitude": 68.79390673932623
+      }
+    },
+    {
+      "stopName": "Рынок \"Мехргон\"",
+      "basePoint": {
+        "latitude": 38.58718965483343,
+        "longitude": 68.79802815978815
+      }
+    },
+    {
+      "stopName": "Табачная фабрика",
+      "basePoint": {
+        "latitude": 38.58246115398445,
+        "longitude": 68.80035846711328
+      }
+    },
+    {
+      "stopName": "Пивзавод",
+      "basePoint": {
+        "latitude": 38.57956566249888,
+        "longitude": 68.8002850725383
+      }
+    },
+    {
+      "stopName": "Университет Центральной Азии",
+      "basePoint": {
+        "latitude": 38.57762305497763,
+        "longitude": 68.80252585901951
+      }
+    },
+    {
+      "stopName": "Киностудия \"Таджикфильм\"\r",
+      "basePoint": {
+        "latitude": 38.57473599278125,
+        "longitude": 68.80565187318652
+      }
+    },
+    {
+      "stopName": "Школа № 102",
+      "basePoint": {
+        "latitude": 38.57229361693947,
+        "longitude": 68.8082605165418
+      }
+    },
+    {
+      "stopName": "ПО \"Системавтоматика\"",
+      "basePoint": {
+        "latitude": 38.56912983636144,
+        "longitude": 68.81181661146174
+      }
+    },
+    {
+      "stopName": "Клиника Красного полумесяца",
+      "basePoint": {
+        "latitude": 38.565134202414484,
+        "longitude": 68.81487525265109
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Европа\"",
+      "basePoint": {
+        "latitude": 38.56225614189616,
+        "longitude": 68.81488185756272
+      }
+    },
+    {
+      "stopName": "СП \"Шёлковый путь\"",
+      "basePoint": {
+        "latitude": 38.553502708052,
+        "longitude": 68.8153768947556
+      }
+    },
+    {
+      "stopName": "Аэропорт",
+      "basePoint": {
+        "latitude": 38.551291012060624,
+        "longitude": 68.81480727096849
+      }
+    },
+    {
+      "stopName": "Поликлиника № 5",
+      "basePoint": {
+        "latitude": 38.551047419934754,
+        "longitude": 68.80852414040723
+      }
+    },
+    {
+      "stopName": "Школа № 16",
+      "basePoint": {
+        "latitude": 38.55044696957757,
+        "longitude": 68.79903695052876
+      }
+    },
+    {
+      "stopName": "Улица Амаки",
+      "basePoint": {
+        "latitude": 38.54729185517914,
+        "longitude": 68.79439433768587
+      }
+    },
+    {
+      "stopName": "Посёлок \"Южный\"",
+      "basePoint": {
+        "latitude": 38.54359843200772,
+        "longitude": 68.79699498531093
+      }
+    },
+    {
+      "stopName": "Винзавод",
+      "basePoint": {
+        "latitude": 38.57600343759052,
+        "longitude": 68.80425095086484
+      }
+    },
+    {
+      "stopName": "Славянский университет",
+      "basePoint": {
+        "latitude": 38.57579501255396,
+        "longitude": 68.79365664352237
+      }
+    },
+    {
+      "stopName": "Школа № 1",
+      "basePoint": {
+        "latitude": 38.57286393309166,
+        "longitude": 68.79159592485529
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Ситора\"",
+      "basePoint": {
+        "latitude": 38.57059238417021,
+        "longitude": 68.78817078475619
+      }
+    },
+    {
+      "stopName": "Школа № 19",
+      "basePoint": {
+        "latitude": 38.561531777859955,
+        "longitude": 68.77901404560404
+      }
+    },
+    {
+      "stopName": "Газетно-журнальный комплекс \"Шарки Озод\"",
+      "basePoint": {
+        "latitude": 38.55764984288781,
+        "longitude": 68.77059855489938
+      }
+    },
+    {
+      "stopName": "Высшая школа",
+      "basePoint": {
+        "latitude": 38.543597647391394,
+        "longitude": 68.76637845878717
+      }
+    },
+    {
+      "stopName": "Наркологическая больница",
+      "basePoint": {
+        "latitude": 38.53809856558357,
+        "longitude": 68.76780879906583
+      }
+    },
+    {
+      "stopName": "Микрорайон 46",
+      "basePoint": {
+        "latitude": 38.526052000367855,
+        "longitude": 68.77051637385621
+      }
+    },
+    {
+      "stopName": "Улица Фирдоуси",
+      "basePoint": {
+        "latitude": 38.5179073529092,
+        "longitude": 68.7689083381609
+      }
+    },
+    {
+      "stopName": "Саховат",
+      "basePoint": {
+        "latitude": 38.517964926461445,
+        "longitude": 68.76148680737717
+      }
+    },
+    {
+      "stopName": "Микрорайон 65",
+      "basePoint": {
+        "latitude": 38.515159028955935,
+        "longitude": 68.75367715315406
+      }
+    },
+    {
+      "stopName": "Поворот на посёлок \"Гулпарвар\"",
+      "basePoint": {
+        "latitude": 38.485408391909864,
+        "longitude": 68.74892160984959
+      }
+    },
+    {
+      "stopName": "Посёлок \"Чимтеппа\"",
+      "basePoint": {
+        "latitude": 38.469815730062976,
+        "longitude": 68.7412384167606
+      }
+    },
+    {
+      "stopName": "Аманар",
+      "basePoint": {
+        "latitude": 38.551469,
+        "longitude": 68.872216
+      }
+    },
+    {
+      "stopName": "Корвон",
+      "basePoint": {
+        "latitude": 38.51172339931756,
+        "longitude": 68.7567510702191
+      }
+    },
+    {
+      "stopName": "Гулистон",
+      "basePoint": {
+        "latitude": 38.54385297732444,
+        "longitude": 68.86492588037085
+      }
+    },
+    {
+      "stopName": "Комбинат Полиграфии г.Душанбе",
+      "basePoint": {
+        "latitude": 38.55243583356957,
+        "longitude": 68.8590260963062
+      }
+    },
+    {
+      "stopName": "Конечка 39",
+      "basePoint": {
+        "latitude": 38.55186396634145,
+        "longitude": 68.87378363971193
+      }
+    },
+    {
+      "stopName": "Комбинат полиграфии г.Душанбе",
+      "basePoint": {
+        "latitude": 38.55272411458254,
+        "longitude": 68.85775904270076
+      }
+    },
+    {
+      "stopName": "Конечная 5",
+      "basePoint": {
+        "latitude": 38.579863959257004,
+        "longitude": 68.82886286472795
+      }
+    },
+    {
+      "stopName": "Мебельный",
+      "basePoint": {
+        "latitude": 38.553262435592096,
+        "longitude": 68.78850781653752
+      }
+    },
+    {
+      "stopName": "Мясокомбинат",
+      "basePoint": {
+        "latitude": 38.54620629836672,
+        "longitude": 68.77186455876884
+      }
+    },
+    {
+      "stopName": "Истиклол",
+      "basePoint": {
+        "latitude": 38.53621886851209,
+        "longitude": 68.7683126929644
+      }
+    },
+    {
+      "stopName": "Хосили 63",
+      "basePoint": {
+        "latitude": 38.512295889682555,
+        "longitude": 68.77034959803966
+      }
+    },
+    {
+      "stopName": "Оптовый",
+      "basePoint": {
+        "latitude": 38.50116582109708,
+        "longitude": 68.75593410006397
+      }
+    },
+    {
+      "stopName": "Рахи нав",
+      "basePoint": {
+        "latitude": 38.49154744710457,
+        "longitude": 68.75184482872895
+      }
+    },
+    {
+      "stopName": "Кахрамон",
+      "basePoint": {
+        "latitude": 38.4810666478772,
+        "longitude": 68.74675833425901
+      }
+    },
+    {
+      "stopName": "Терминал",
+      "basePoint": {
+        "latitude": 38.46842768290897,
+        "longitude": 68.74051429220476
+      }
+    },
+    {
+      "stopName": "Пост",
+      "basePoint": {
+        "latitude": 38.46464774398479,
+        "longitude": 68.73842705916344
+      }
+    },
+    {
+      "stopName": "Тарозу",
+      "basePoint": {
+        "latitude": 38.467348799482366,
+        "longitude": 68.70668282633711
+      }
+    },
+    {
+      "stopName": "Оптовый Корвон",
+      "basePoint": {
+        "latitude": 38.50110002982459,
+        "longitude": 68.75606713942078
+      }
+    },
+    {
+      "stopName": "Сохили 63",
+      "basePoint": {
+        "latitude": 38.51308087002456,
+        "longitude": 68.77063355670255
+      }
+    },
+    {
+      "stopName": "Конечка 33",
+      "basePoint": {
+        "latitude": 38.54904042025139,
+        "longitude": 68.78108425943519
+      }
+    },
+    {
+      "stopName": "Ромсар",
+      "basePoint": {
+        "latitude": 38.552045,
+        "longitude": 68.785765
+      }
+    },
+    {
+      "stopName": "Мебелный",
+      "basePoint": {
+        "latitude": 38.553166,
+        "longitude": 68.788299
+      }
+    },
+    {
+      "stopName": "Хитой бозор",
+      "basePoint": {
+        "latitude": 38.55092975887203,
+        "longitude": 68.79154753106896
+      }
+    },
+    {
+      "stopName": "Мучиза",
+      "basePoint": {
+        "latitude": 38.55117147286855,
+        "longitude": 68.81305981036763
+      }
+    },
+    {
+      "stopName": "Чор дома",
+      "basePoint": {
+        "latitude": 38.56287060609143,
+        "longitude": 68.81490238878835
+      }
+    },
+    {
+      "stopName": "Западные ворота, микрорайон \"Заравшон - 2\"",
+      "basePoint": {
+        "latitude": 38.583740245843366,
+        "longitude": 68.7070679752107
+      }
+    },
+    {
+      "stopName": "Микрорайон 112, поворот проспекта Б. Гафурова",
+      "basePoint": {
+        "latitude": 38.591419674935665,
+        "longitude": 68.73866132355444
+      }
+    },
+    {
+      "stopName": "Сапеда 112",
+      "basePoint": {
+        "latitude": 38.588107720476536,
+        "longitude": 68.74073453672898
+      }
+    },
+    {
+      "stopName": "Посёлок \"Казакон\"",
+      "basePoint": {
+        "latitude": 38.58675333734938,
+        "longitude": 68.74069430359376
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Саодат\"",
+      "basePoint": {
+        "latitude": 38.58016963789065,
+        "longitude": 68.74070922534096
+      }
+    },
+    {
+      "stopName": "Улица Шамси",
+      "basePoint": {
+        "latitude": 38.577238408491574,
+        "longitude": 68.74201772447891
+      }
+    },
+    {
+      "stopName": "Филиал ТГМУ",
+      "basePoint": {
+        "latitude": 38.577547686449535,
+        "longitude": 68.75411355814731
+      }
+    },
+    {
+      "stopName": "Автовокзал",
+      "basePoint": {
+        "latitude": 38.5720570549419,
+        "longitude": 68.75463875650836
+      }
+    },
+    {
+      "stopName": "Микрорайон 13",
+      "basePoint": {
+        "latitude": 38.56651316362954,
+        "longitude": 68.75474976997361
+      }
+    },
+    {
+      "stopName": "Госфилармония",
+      "basePoint": {
+        "latitude": 38.56278710822506,
+        "longitude": 68.75484214492826
+      }
+    },
+    {
+      "stopName": "ЖК \"Армения\"",
+      "basePoint": {
+        "latitude": 38.559299438282615,
+        "longitude": 68.7549194781253
+      }
+    },
+    {
+      "stopName": "Улица Якка-Чинарская",
+      "basePoint": {
+        "latitude": 38.558162644225526,
+        "longitude": 68.75640005750154
+      }
+    },
+    {
+      "stopName": "Госцирк",
+      "basePoint": {
+        "latitude": 38.558980447447105,
+        "longitude": 68.76509194236243
+      }
+    },
+    {
+      "stopName": "Таджиктекстиль",
+      "basePoint": {
+        "latitude": 38.5614417643672,
+        "longitude": 68.78073969315616
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Ашан\"",
+      "basePoint": {
+        "latitude": 38.572978152908156,
+        "longitude": 68.80125282151346
+      }
+    },
+    {
+      "stopName": "Парк им. Навои",
+      "basePoint": {
+        "latitude": 38.571953521710256,
+        "longitude": 68.79630897751899
+      }
+    },
+    {
+      "stopName": "Агроинвестбанк",
+      "basePoint": {
+        "latitude": 38.55893425340123,
+        "longitude": 68.76432181831606
+      }
+    },
+    {
+      "stopName": "Филиал МГТУ",
+      "basePoint": {
+        "latitude": 38.57755486590992,
+        "longitude": 68.75415789543361
+      }
+    },
+    {
+      "stopName": "Министерство энергетики и водных ресурсов",
+      "basePoint": {
+        "latitude": 38.5773520968394,
+        "longitude": 68.7462857091225
+      }
+    },
+    {
+      "stopName": "Кафе \"Райхон\"",
+      "basePoint": {
+        "latitude": 38.59171171347858,
+        "longitude": 68.74242191668343
+      }
+    },
+    {
+      "stopName": "Посёлок \"Хамадони\"",
+      "basePoint": {
+        "latitude": 38.591337943573336,
+        "longitude": 68.73759513390368
+      }
+    },
+    {
+      "stopName": "Северо-западная производственная зона",
+      "basePoint": {
+        "latitude": 38.58991278233022,
+        "longitude": 68.73038101573393
+      }
+    },
+    {
+      "stopName": "Западная энергетическая зона",
+      "basePoint": {
+        "latitude": 38.589178850724025,
+        "longitude": 68.72666414593238
+      }
+    },
+    {
+      "stopName": "Музей",
+      "basePoint": {
+        "latitude": 38.58815467764562,
+        "longitude": 68.72150375957851
+      }
+    },
+    {
+      "stopName": "Улица Бобо Хамдамова",
+      "basePoint": {
+        "latitude": 38.58706610265308,
+        "longitude": 68.71498087387344
+      }
+    },
+    {
+      "stopName": "Улица Зафар",
+      "basePoint": {
+        "latitude": 38.58522498167043,
+        "longitude": 68.71094915298579
+      }
+    },
+    {
+      "stopName": "Чайхана \"Абдуллох\"",
+      "basePoint": {
+        "latitude": 38.58375854104038,
+        "longitude": 68.70688884250971
+      }
+    },
+    {
+      "stopName": "Посёлок \"Шайнак\"",
+      "basePoint": {
+        "latitude": 38.48587060401487,
+        "longitude": 68.7131915378571
+      }
+    },
+    {
+      "stopName": "Поворот на Шайнак",
+      "basePoint": {
+        "latitude": 38.488213641794545,
+        "longitude": 68.71529438972478
+      }
+    },
+    {
+      "stopName": "Магазин",
+      "basePoint": {
+        "latitude": 38.48796170590376,
+        "longitude": 68.72057297706608
+      }
+    },
+    {
+      "stopName": "Автобаза",
+      "basePoint": {
+        "latitude": 38.49858068053207,
+        "longitude": 68.72835633688342
+      }
+    },
+    {
+      "stopName": "Микрорайон \"Пахтакор\"",
+      "basePoint": {
+        "latitude": 38.5090861031506,
+        "longitude": 68.72965664198557
+      }
+    },
+    {
+      "stopName": "Рынок \"Сомон\"",
+      "basePoint": {
+        "latitude": 38.51043890443105,
+        "longitude": 68.73593363747679
+      }
+    },
+    {
+      "stopName": "Гипроземгородок",
+      "basePoint": {
+        "latitude": 38.512641348489716,
+        "longitude": 68.7426590360606
+      }
+    },
+    {
+      "stopName": "Финансово-экономический университет",
+      "basePoint": {
+        "latitude": 38.51546603972669,
+        "longitude": 68.74385239451905
+      }
+    },
+    {
+      "stopName": "Микрорайон 64",
+      "basePoint": {
+        "latitude": 38.51287475679763,
+        "longitude": 68.75330979149453
+      }
+    },
+    {
+      "stopName": "Магазин \"Сафарали\"",
+      "basePoint": {
+        "latitude": 38.51576918284974,
+        "longitude": 68.75418393432928
+      }
+    },
+    {
+      "stopName": "ТЦ \"Сиёма\"",
+      "basePoint": {
+        "latitude": 38.51801635177145,
+        "longitude": 68.75296390474408
+      }
+    },
+    {
+      "stopName": "Общежитие института искусств",
+      "basePoint": {
+        "latitude": 38.5191195433428,
+        "longitude": 68.74876039332369
+      }
+    },
+    {
+      "stopName": "Кафе \"Марди худо\"",
+      "basePoint": {
+        "latitude": 38.518598710750084,
+        "longitude": 68.74509597101634
+      }
+    },
+    {
+      "stopName": "Школа № 99",
+      "basePoint": {
+        "latitude": 38.52340608674744,
+        "longitude": 68.7474611865148
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Мардон\"",
+      "basePoint": {
+        "latitude": 38.527881952928446,
+        "longitude": 68.7495708081529
+      }
+    },
+    {
+      "stopName": " Микрорайон \"1-й Советский\"",
+      "basePoint": {
+        "latitude": 38.53985007210222,
+        "longitude": 68.75533104641504
+      }
+    },
+    {
+      "stopName": "Общежитие технологического университета",
+      "basePoint": {
+        "latitude": 38.55191774484038,
+        "longitude": 68.7481623088461
+      }
+    },
+    {
+      "stopName": "Микрорайон 32",
+      "basePoint": {
+        "latitude": 38.555168684010134,
+        "longitude": 68.74819625068362
+      }
+    },
+    {
+      "stopName": "Улица Маяковского",
+      "basePoint": {
+        "latitude": 38.55818590173991,
+        "longitude": 68.74958859309238
+      }
+    },
+    {
+      "stopName": "Мохи нав",
+      "basePoint": {
+        "latitude": 38.558592483236126,
+        "longitude": 68.75275544338052
+      }
+    },
+    {
+      "stopName": "Улица Фучика",
+      "basePoint": {
+        "latitude": 38.548866,
+        "longitude": 68.780578
+      }
+    },
+    {
+      "stopName": "Посёлок \"Мехрабад\"",
+      "basePoint": {
+        "latitude": 38.594754237317225,
+        "longitude": 68.7543789270672
+      }
+    },
+    {
+      "stopName": "Посёлок \"Новобад\"",
+      "basePoint": {
+        "latitude": 38.597452404190584,
+        "longitude": 68.75867172202214
+      }
+    },
+    {
+      "stopName": "Центральная Соборная мечеть",
+      "basePoint": {
+        "latitude": 38.597444449315574,
+        "longitude": 68.76347437185404
+      }
+    },
+    {
+      "stopName": "Товус",
+      "basePoint": {
+        "latitude": 38.602115776768024,
+        "longitude": 68.77477110150652
+      }
+    },
+    {
+      "stopName": "Союз писателей",
+      "basePoint": {
+        "latitude": 38.58298042936671,
+        "longitude": 68.78357641611765
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Таджикистан\" (ЦУМ)",
+      "basePoint": {
+        "latitude": 38.58105462456653,
+        "longitude": 68.78584473705942
+      }
+    },
+    {
+      "stopName": "Кафе \"Шохмансур\"",
+      "basePoint": {
+        "latitude": 38.56775526078764,
+        "longitude": 68.8052024660403
+      }
+    },
+    {
+      "stopName": "Улица Мухаммада",
+      "basePoint": {
+        "latitude": 38.567746872216546,
+        "longitude": 68.8095798311526
+      }
+    },
+    {
+      "stopName": "Улица Карин Манн",
+      "basePoint": {
+        "latitude": 38.55179291880007,
+        "longitude": 68.7906375556838
+      }
+    },
+    {
+      "stopName": "Китайский рынок",
+      "basePoint": {
+        "latitude": 38.55207331288628,
+        "longitude": 68.78577652346088
+      }
+    },
+    {
+      "stopName": "Рынок \"Шохмансур\"",
+      "basePoint": {
+        "latitude": 38.5677762322109,
+        "longitude": 68.80073122361247
+      }
+    },
+    {
+      "stopName": "Детский парк",
+      "basePoint": {
+        "latitude": 38.578816943116415,
+        "longitude": 68.79260775832067
+      }
+    },
+    {
+      "stopName": "Филиал МГУ",
+      "basePoint": {
+        "latitude": 38.57878291095319,
+        "longitude": 68.78912716002125
+      }
+    },
+    {
+      "stopName": "Международная школа",
+      "basePoint": {
+        "latitude": 38.59368490213806,
+        "longitude": 68.74807178307351
+      }
+    },
+    {
+      "stopName": "Танк",
+      "basePoint": {
+        "latitude": 38.563132857214995,
+        "longitude": 68.78538476565745
+      }
+    },
+    {
+      "stopName": "Конечка \"33\"",
+      "basePoint": {
+        "latitude": 38.548894860899104,
+        "longitude": 68.78069878092704
+      }
+    },
+    {
+      "stopName": "Конечка11",
+      "basePoint": {
+        "latitude": 38.537314274658236,
+        "longitude": 68.73093441192191
+      }
+    },
+    {
+      "stopName": "Ласточка",
+      "basePoint": {
+        "latitude": 38.56253185670027,
+        "longitude": 68.7859451768035
+      }
+    },
+    {
+      "stopName": "Университет Имени Осими",
+      "basePoint": {
+        "latitude": 38.564847891110816,
+        "longitude": 68.78908661541614
+      }
+    },
+    {
+      "stopName": "Ожоговая больница",
+      "basePoint": {
+        "latitude": 38.56613557726597,
+        "longitude": 68.79104462799701
+      }
+    },
+    {
+      "stopName": "Театр Опера-балета",
+      "basePoint": {
+        "latitude": 38.56824227376481,
+        "longitude": 68.79416153591298
+      }
+    },
+    {
+      "stopName": "Терминал \"Чорбог\"",
+      "basePoint": {
+        "latitude": 38.65826794047946,
+        "longitude": 68.76508155345921
+      }
+    },
+    {
+      "stopName": "Улица Карамова",
+      "basePoint": {
+        "latitude": 38.59402369224686,
+        "longitude": 68.75618000634053
+      }
+    },
+    {
+      "stopName": "Поликлиника № 10",
+      "basePoint": {
+        "latitude": 38.58719395523503,
+        "longitude": 68.75525218874573
+      }
+    },
+    {
+      "stopName": "Поликлиника № 2",
+      "basePoint": {
+        "latitude": 38.564043001471454,
+        "longitude": 68.75960548435516
+      }
+    },
+    {
+      "stopName": "Микрорайон 12",
+      "basePoint": {
+        "latitude": 38.564043001471454,
+        "longitude": 68.76151521717377
+      }
+    },
+    {
+      "stopName": "Торговый центр \"Ёвар\"",
+      "basePoint": {
+        "latitude": 38.56712169999195,
+        "longitude": 68.76618226085967
+      }
+    },
+    {
+      "stopName": "СТО \"Москвич\"",
+      "basePoint": {
+        "latitude": 38.561504002982865,
+        "longitude": 68.76972712548746
+      }
+    },
+    {
+      "stopName": "Автоцентр",
+      "basePoint": {
+        "latitude": 38.5118589010822,
+        "longitude": 68.76061814763584
+      }
+    }
+  ]
+}
