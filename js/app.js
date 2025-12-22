@@ -806,3 +806,37 @@ window.setRoutePoint = function(type, stopId) {
 
 ConfigHelper.log('Приложение подготовлено к запуску');
 ConfigHelper.log('Для отладки используйте: window.debug');
+
+window.openSettings = function() {
+    document.getElementById('settingsModal').style.display = 'flex';
+    // Устанавливаем текущие значения
+    document.getElementById('inpRadius').value = CONFIG.VISUAL.STOP_RADIUS;
+    document.getElementById('inpZoom').value = CONFIG.MAP.MAX_ZOOM;
+    
+    // Обновляем цифры
+    document.getElementById('lblRadius').innerText = CONFIG.VISUAL.STOP_RADIUS;
+    document.getElementById('lblZoom').innerText = CONFIG.MAP.MAX_ZOOM;
+};
+
+// Обновление цифр при перетаскивании
+document.getElementById('inpRadius').oninput = function() {
+    document.getElementById('lblRadius').innerText = this.value;
+};
+document.getElementById('inpZoom').oninput = function() {
+    document.getElementById('lblZoom').innerText = this.value;
+};
+
+window.applySettings = function() {
+    // 1. Сохраняем в конфиг
+    CONFIG.VISUAL.STOP_RADIUS = parseFloat(document.getElementById('inpRadius').value);
+    CONFIG.MAP.MAX_ZOOM = parseFloat(document.getElementById('inpZoom').value);
+
+    // 2. Перерисовываем карту (вызываем твой метод отрисовки)
+    // Предполагаю, что DataManager доступен глобально
+    if (window.MapManager && window.DataManager) {
+        MapManager.drawScheme(DataManager.stops, DataManager.routes);
+    }
+
+    // 3. Закрываем
+    document.getElementById('settingsModal').style.display = 'none';
+};

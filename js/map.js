@@ -18,24 +18,94 @@ const MapManager = {
     drawnRoutes: new Map(),
     selectedStop: null,
     highlightedRoute: null,  // НОВОЕ: отслеживание выделенного маршрута
+    lastTouchDistance: 0,
+    initialPinchScale: 1,
+    isPinching: false,
 
     init() {
         ConfigHelper.log('Инициализация карты...');
-        
         this.svg = document.getElementById('transportMap');
-        if (!this.svg) {
-            ConfigHelper.error('SVG элемент не найден');
-            return false;
+        if (!this.svg) return false;
+
+        // Создаем главную группу
+        this.mapGroup = document.getElementById('mainGroup');
+        if (!this.mapGroup) {
+            this.mapGroup = Utils.createSVGElement('g', { id: 'mainGroup' });
+            this.svg.appendChild(this.mapGroup);
         }
-        
-        this.mapGroup = Utils.createSVGElement('g', {
-            id: 'mainGroup'
-        });
-        this.svg.appendChild(this.mapGroup);
+
+        // 1. Слой для маршрутов (снизу)
+        this.routesGroup = document.getElementById('routesGroup');
+        if (!this.routesGroup) {
+            this.routesGroup = Utils.createSVGElement('g', { id: 'routesGroup' });
+            this.mapGroup.appendChild(this.routesGroup);
+        }
+
+        // 2. Слой для остановок (сверху)
+        this.stopsGroup = document.getElementById('stopsGroup');
+        if (!this.stopsGroup) {
+            this.stopsGroup = Utils.createSVGElement('g', { id: 'stopsGroup' });
+            this.mapGroup.appendChild(this.stopsGroup);
+        }
+
         this.initControls();
-        
-        ConfigHelper.log('Карта инициализирована');
         return true;
+    },
+
+    clear() {
+        if (this.routesGroup) this.routesGroup.innerHTML = '';
+        if (this.stopsGroup) this.stopsGroup.innerHTML = '';
+        this.drawnStops.clear();
+        this.drawnRoutes.clear();
+    },
+
+    calculateProjection(stops) {
+        if (!stops.length) return;
+
+        let minLat = Infinity, maxLat = -Infinity;
+        let minLon = Infinity, maxLon = -Infinity;
+
+        stops.forEach(stop => {
+            if (stop.lat < minLat) minLat = stop.lat;
+            if (stop.lat > maxLat) maxLat = stop.lat;
+            if (stop.lon < minLon) minLon = stop.lon;
+            if (stop.lon > maxLon) maxLon = stop.lon;
+        });
+
+        const width = this.svg.clientWidth - (CONFIG.MAP.PADDING * 2);
+        const height = this.svg.clientHeight - (CONFIG.MAP.PADDING * 2);
+
+        // Коррекция широты для Душанбе (чтобы карта была пропорциональной)
+        const latCorrection = 1.0; 
+        
+        const latRange = maxLat - minLat;
+        const lonRange = (maxLon - minLon) * latCorrection;
+
+        // ВАЖНО: Берем меньший масштаб, чтобы поместилось всё и не растянулось
+        const scaleX = width / lonRange;
+        const scaleY = height / latRange;
+        const finalScale = Math.min(scaleX, scaleY);
+
+        // Центрируем контент
+        const contentWidth = lonRange * finalScale;
+        const contentHeight = latRange * finalScale;
+        
+        const offsetX = (this.svg.clientWidth - contentWidth) / 2;
+        const offsetY = (this.svg.clientHeight - contentHeight) / 2;
+
+        this.projection = {
+            minLat, maxLat, minLon, maxLon,
+            scale: finalScale,
+            offsetX, offsetY
+        };
+    },
+
+    project(lat, lon) {
+        // Используем единый scale
+        const x = (lon - this.projection.minLon) * this.projection.scale + this.projection.offsetX;
+        // Y инвертируем (0 сверху)
+        const y = (this.projection.maxLat - lat) * this.projection.scale + this.projection.offsetY;
+        return { x, y };
     },
 
     drawScheme(stops, routes) {
@@ -655,6 +725,73 @@ const MapManager = {
                 this.updateTransform();
             }
         });
+        // Тач-события (для телефона)
+        this.svg.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+        this.svg.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+        this.svg.addEventListener('touchend', this.handleTouchEnd.bind(this));
+    },
+
+    handleTouchStart(e) {
+        if (e.touches.length === 1) {
+            // Один палец - перемещение
+            this.isDragging = true;
+            this.dragStartX = e.touches[0].clientX - this.translateX;
+            this.dragStartY = e.touches[0].clientY - this.translateY;
+        } else if (e.touches.length === 2) {
+            // Два пальца - зум
+            this.isPinching = true;
+            this.lastTouchDistance = this.getTouchDistance(e.touches);
+            this.initialPinchScale = this.scale;
+            e.preventDefault(); // Чтобы не зумился весь сайт
+        }
+    },
+
+    handleTouchMove(e) {
+        if (e.touches.length === 1 && this.isDragging && !this.isPinching) {
+            // Двигаем карту
+            this.translateX = e.touches[0].clientX - this.dragStartX;
+            this.translateY = e.touches[0].clientY - this.dragStartY;
+            this.updateTransform();
+        } else if (e.touches.length === 2 && this.isPinching) {
+            // Зумим карту
+            e.preventDefault();
+            const currentDistance = this.getTouchDistance(e.touches);
+            if (this.lastTouchDistance > 0) {
+                const ratio = currentDistance / this.lastTouchDistance;
+                const newScale = Math.min(Math.max(this.initialPinchScale * ratio, CONFIG.MAP.MIN_ZOOM), CONFIG.MAP.MAX_ZOOM);
+                
+                // Зум к центру между пальцами
+                const center = this.getTouchCenter(e.touches);
+                const scaleChange = newScale / this.scale;
+                
+                this.translateX = center.x - (center.x - this.translateX) * scaleChange;
+                this.translateY = center.y - (center.y - this.translateY) * scaleChange;
+                this.scale = newScale;
+                
+                this.updateTransform();
+            }
+        }
+    },
+
+    handleTouchEnd(e) {
+        this.isDragging = false;
+        if (e.touches.length < 2) {
+            this.isPinching = false;
+        }
+    },
+
+    getTouchDistance(touches) {
+        return Math.hypot(
+            touches[0].clientX - touches[1].clientX,
+            touches[0].clientY - touches[1].clientY
+        );
+    },
+
+    getTouchCenter(touches) {
+        return {
+            x: (touches[0].clientX + touches[1].clientX) / 2,
+            y: (touches[0].clientY + touches[1].clientY) / 2
+        };
     },
 
     updateTransform() {
