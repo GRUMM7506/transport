@@ -53,13 +53,12 @@
     --route-opacity: 0.8;
 }
 
+/* КРИТИЧНО: Убираем transition со ВСЕХ элементов по умолчанию
+   Добавляем только там где нужно */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    transition: background-color var(--transition-normal), 
-                color var(--transition-normal),
-                border-color var(--transition-normal);
 }
 
 body {
@@ -70,6 +69,9 @@ body {
     background: var(--bg-secondary);
     overflow: hidden;
     color: var(--text-primary);
+    /* ВАЖНО: Плавный переход только для цветов темы */
+    transition: background-color var(--transition-normal), 
+                color var(--transition-normal);
 }
 
 /* ============================================
@@ -93,6 +95,8 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 100;
+    transition: background-color var(--transition-normal),
+                border-color var(--transition-normal);
 }
 
 [data-theme="dark"] .sidebar {
@@ -100,12 +104,20 @@ body {
     box-shadow: 20px 0 40px rgba(0,0,0,0.3);
 }
 
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
 h2.sidebar-title {
     font-size: 22px;
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 24px;
     letter-spacing: -0.5px;
+    margin: 0;
 }
 
 .search-panel {
@@ -129,7 +141,7 @@ h2.sidebar-title {
     font-size: 16px;
     padding: 0 16px;
     color: var(--text-primary);
-    transition: all 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .search-box input:focus {
@@ -156,6 +168,7 @@ h2.sidebar-title {
     background: var(--bg-primary);
     color: var(--text-secondary);
     cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .filter-btn.active {
@@ -180,9 +193,8 @@ h2.sidebar-title {
     font-size: 16px; /* Предотвращает автоматический зум в iOS Safari */
 }
 
-/* Скроллбары для результатов поиска, чтобы они не «прыгали» */
 #searchResults {
-    -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+    -webkit-overflow-scrolling: touch; /* Плавный scroll на iOS */
 }
 
 .search-results {
@@ -244,7 +256,7 @@ h2.sidebar-title {
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .stop-item:hover, .route-result-item:hover {
@@ -324,7 +336,7 @@ h2.sidebar-title {
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -418,7 +430,7 @@ h2.sidebar-title {
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .close-btn:hover {
@@ -457,7 +469,7 @@ h2.sidebar-title {
     border-radius: 50%;
     cursor: pointer;
     font-size: 20px;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
     color: var(--text-primary);
 }
 
@@ -477,7 +489,7 @@ h2.sidebar-title {
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .build-route-btn:hover {
@@ -487,7 +499,7 @@ h2.sidebar-title {
 }
 
 /* ============================================
-   КАРТА
+   КАРТА - КРИТИЧНЫЕ ОПТИМИЗАЦИИ
    ============================================ */
 .map-container {
     flex: 1;
@@ -500,23 +512,28 @@ h2.sidebar-title {
     width: 100%;
     height: 100%;
     cursor: grab;
-    touch-action: none; /* ЭТО ВАЖНО: блокирует прокрутку страницы браузером, когда водишь пальцем по карте */
+    touch-action: none; /* Блокирует прокрутку страницы браузером */
+}
+
+.transport-map g {
+    transform-origin: 0 0;
 }
 
 #transportMap {
     width: 100%;
-    height: 100vh; /* Занимать всю высоту экрана */
+    height: 100vh;
     display: block;
-    touch-action: none; /* Важно для мобилок, чтобы не скроллилась вся страница */
+    touch-action: none;
 }
 
 .transport-map:active {
     cursor: grabbing;
 }
 
+/* ОПТИМИЗАЦИЯ: Убрали transitions с SVG элементов */
 .route-line {
     stroke-opacity: var(--route-opacity);
-    transition: all 0.3s ease;
+    /* transition удален для производительности */
 }
 
 .route-line:hover {
@@ -528,14 +545,13 @@ h2.sidebar-title {
 .stop-circle {
     fill: var(--stop-fill);
     stroke: var(--stop-stroke);
-    transition: r 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* transition удален для производительности */
 }
 
 .stop-circle:hover {
     filter: drop-shadow(0 0 4px rgba(0,0,0,0.3));
 }
 
-/* ИСПРАВЛЕНО: Текст остановок теперь НЕ зеленый при наведении */
 .stop-label {
     font-size: 11px;
     font-weight: 600;
@@ -565,10 +581,9 @@ h2.sidebar-title {
     display: block !important;
 }
 
-/* ИСПРАВЛЕНО: При наведении текст становится жирнее, но НЕ зеленым */
 .stop-group:hover .stop-label {
     font-weight: 700;
-    fill: var(--text-primary); /* Было var(--primary-color) */
+    fill: var(--text-primary);
 }
 
 .transfer-indicator {
@@ -577,17 +592,16 @@ h2.sidebar-title {
 }
 
 /* ============================================
-   ТАЙМЛАЙН МАРШРУТА - ИСПРАВЛЕНО: добавлен скроллинг
+   TIMELINE МАРШРУТА - со скроллингом
    ============================================ */
 .route-timeline {
     position: relative;
     padding-left: 20px;
     margin-top: 12px;
-    max-height: 300px;  /* ДОБАВЛЕНО */
-    overflow-y: auto;    /* ДОБАВЛЕНО */
+    max-height: 300px;
+    overflow-y: auto;
 }
 
-/* ДОБАВЛЕНО: скроллбар для таймлайна */
 .route-timeline::-webkit-scrollbar {
     width: 6px;
 }
@@ -664,7 +678,9 @@ h2.sidebar-title {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), 
+                color var(--transition-fast),
+                transform var(--transition-fast);
 }
 
 .control-btn:hover {
@@ -723,7 +739,7 @@ h2.sidebar-title {
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast);
 }
 
 .legend-toggle:hover {
@@ -751,7 +767,7 @@ h2.sidebar-title {
     margin-bottom: 4px;
     cursor: pointer;
     border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast);
 }
 
 .legend-item:hover {
@@ -779,7 +795,7 @@ h2.sidebar-title {
 }
 
 /* ============================================
-   ИНФОРМАЦИОННАЯ ПАНЕЛЬ - ИСПРАВЛЕНО: добавлен скроллинг
+   ИНФОРМАЦИОННАЯ ПАНЕЛЬ - со скроллингом
    ============================================ */
 .info-panel {
     position: absolute;
@@ -790,14 +806,13 @@ h2.sidebar-title {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     max-width: 400px;
-    max-height: 70vh;  /* ИСПРАВЛЕНО: была max-height без значения */
-    overflow-y: auto;   /* ДОБАВЛЕНО */
+    max-height: 70vh;
+    overflow-y: auto;
     display: none;
     animation: slideIn 0.3s ease;
     border: 1px solid var(--border-color);
 }
 
-/* ДОБАВЛЕНО: скроллбар для info-panel */
 .info-panel::-webkit-scrollbar {
     width: 6px;
 }
@@ -846,7 +861,7 @@ h2.sidebar-title {
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast);
 }
 
 .info-close:hover {
@@ -906,6 +921,26 @@ h2.sidebar-title {
    ============================================ */
 .mobile-menu-btn {
     display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    width: 48px;
+    height: 48px;
+    background: var(--bg-primary);
+    border: none;
+    border-radius: 50%;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    z-index: 1001;
+    color: var(--text-primary);
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.mobile-menu-btn:active {
+    transform: scale(0.95);
 }
 
 /* ============================================
@@ -914,52 +949,23 @@ h2.sidebar-title {
 @media (max-width: 768px) {
     .mobile-menu-btn {
         display: flex !important;
-        position: fixed;
-        top: 16px;
-        left: 16px;
-        width: 48px;
-        height: 48px;
-        background: var(--bg-primary);
-        border: none;
-        border-radius: 50%;
-        box-shadow: var(--shadow-md);
-        font-size: 24px;
-        cursor: pointer;
-        z-index: 999;
-        color: var(--text-primary);
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .mobile-menu-btn:active {
-        transform: scale(0.95);
     }
 
     .sidebar {
         position: fixed;
         left: 0;
         top: 0;
-        height: 100%;
-        width: 100%;
-        max-width: 100%;
+        height: 100vh;
+        width: 85%;
+        max-width: 360px;
         transform: translateX(-100%);
-        z-index: 1000;
-        transition: transform 0.3s ease;
+        z-index: 1200;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
     }
     
     .sidebar.open {
         transform: translateX(0);
-        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
-    }
-    
-    .search-panel {
-        padding: 16px;
-    }
-
-    h2.sidebar-title {
-        font-size: 18px;
-        margin-bottom: 16px;
     }
 
     .search-box input {
@@ -1021,7 +1027,6 @@ h2.sidebar-title {
         max-width: 100%;
         border-radius: 16px 16px 0 0;
         max-height: 70vh;
-        overflow-y: auto;
         animation: slideUp 0.3s ease;
     }
 
@@ -1045,13 +1050,17 @@ h2.sidebar-title {
 
     .route-planner {
         position: fixed;
-        top: auto;
-        bottom: 0;
+        top: 0;
         left: 0;
-        right: 0;
         width: 100%;
-        border-radius: 16px 16px 0 0;
-        animation: slideUp 0.3s ease;
+        height: 100%;
+        border-radius: 0;
+        z-index: 1300;
+    }
+    
+    .planner-inputs input {
+        font-size: 16px; /* Чтобы iOS не зумил при вводе */
+        padding: 12px;
     }
 
     .controls {
@@ -1125,11 +1134,15 @@ h2.sidebar-title {
 @media (max-width: 768px) and (orientation: landscape) {
     .sidebar {
         width: 50%;
-        max-width: 380px;
+        max-width: 400px;
     }
 
     .info-panel {
-        max-height: 80vh;
+        max-height: 85vh;
+    }
+
+    .route-planner {
+        max-height: 85vh;
     }
 
     .controls {
@@ -1151,125 +1164,57 @@ h2.sidebar-title {
     }
 }
 
-/* Модальное окно */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s;
+/* ============================================
+   NO-HOVER класс для мобильных
+   ============================================ */
+.no-hover .route-line:hover,
+.no-hover .stop-circle:hover,
+.no-hover .legend-item:hover,
+.no-hover .filter-btn:hover,
+.no-hover .control-btn:hover {
+    /* Отключаем все hover эффекты на touch устройствах */
+    transform: none !important;
+    filter: none !important;
+    background: inherit !important;
 }
 
-.modal-overlay.show {
-    display: flex;
-}
+/* ============================================
+   ОПТИМИЗАЦИИ ДЛЯ ПРОИЗВОДИТЕЛЬНОСТИ
+   ============================================ */
 
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.modal-header h3 { margin: 0; }
-
-.close-btn {
-    background: none; border: none;
-    font-size: 24px; cursor: pointer;
-    color: #666;
-}
-
-.setting-group {
-    margin-bottom: 15px;
-}
-
-.setting-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.setting-group input[type="range"] {
-    width: 100%;
-}
-
-.modal-footer {
-    margin-top: 20px;
-    text-align: right;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* Чтобы подсказки (suggestions) тоже были темными */
-#suggestions {
-    background-color: var(--bg-primary) !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--border-color) !important;
-}
-
-.suggestion-item:hover {
-    background-color: var(--bg-hover) !important;
-}
-
-.suggestion-item {
-    padding: 10px;
-    cursor: pointer;
-    transition: background var(--transition-fast);
-}
-
-/* Общие стили планировщика */
-/* #routePlanner {
-    position: fixed;
-    z-index: 2000;  
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-} */
-
-/* Мобильная версия (на весь экран или снизу) */
-@media (max-width: 768px) {
-    #routePlanner {
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .planner-inputs input {
-        font-size: 16px; /* Чтобы iOS не зумил при вводе */
-        padding: 12px;
+/* Отключаем плавный скролл для лучшей производительности */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
 
-/* ПК версия */
-@media (min-width: 769px) {
-    #routePlanner {
-        top: 20px;
-        right: 80px; /* Чтобы не перекрывал кнопки зума */
-        width: 320px;
-    }
+/* Улучшаем производительность анимаций */
+.route-line,
+.stop-circle,
+.control-btn {
+    will-change: transform;
+}
+
+/* Отключаем will-change после анимации */
+.route-line:not(:hover),
+.stop-circle:not(:hover),
+.control-btn:not(:hover) {
+    will-change: auto;
+}
+
+/* Плавный скролл только там где нужно */
+.search-results,
+.legend-content,
+.info-panel,
+.route-timeline {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Убираем tap highlight на мобильных */
+* {
+    -webkit-tap-highlight-color: transparent;
 }

@@ -573,22 +573,29 @@ const RouterManager = {
 function togglePlanner() {
     const planner = document.getElementById('routePlanner');
     const isHidden = planner.style.display === 'none' || !planner.style.display;
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     
     if (isHidden) {
         planner.style.display = 'block';
+        if (mobileMenuBtn) mobileMenuBtn.style.display = 'none';
         // На мобилках скрываем боковую панель поиска, если она открыта
         if (window.innerWidth <= 768) {
             const sidebar = document.querySelector('.sidebar');
-            if (sidebar) sidebar.style.display = 'none'; 
+            if (sidebar && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
         }
     } else {
         planner.style.display = 'none';
+        if (mobileMenuBtn) mobileMenuBtn.style.display = 'flex';
     }
 }
 
 function closePlanner() {
     const planner = document.getElementById('routePlanner');
     planner.style.display = 'none';
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    if (mobileMenuBtn) mobileMenuBtn.style.display = 'flex';
 }
 
 function swapPoints() {

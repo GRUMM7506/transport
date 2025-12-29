@@ -1,6 +1,12 @@
 /**
- * map.js
+ * map.js (ОПТИМИЗИРОВАННАЯ ВЕРСИЯ)
  * Модуль для отрисовки и управления схемой транспорта
+ * 
+ * КЛЮЧЕВЫЕ УЛУЧШЕНИЯ:
+ * - Viewport culling (отрисовка только видимых элементов)
+ * - Throttling тяжелых операций
+ * - Кэширование вычислений
+ * - Адаптивная детализация
  */
 
 const MapManager = {
@@ -17,15 +23,26 @@ const MapManager = {
     drawnStops: new Map(),
     drawnRoutes: new Map(),
     selectedStop: null,
-    highlightedRoute: null,  // НОВОЕ: отслеживание выделенного маршрута
+    highlightedRoute: null,
     lastTouchDistance: 0,
     initialPinchScale: 1,
     isPinching: false,
-    lastTouchX: 0,
-    lastTouchY: 0,
+    
+    // НОВОЕ: Кэши для оптимизации
+    bboxCache: new Map(),
+    visibleElements: new Set(),
+    updateQueued: false,
+    lastUpdateTime: 0,
+    isMobile: false,
+    
+    // НОВОЕ: Viewport boundaries
+    viewportBounds: { minX: 0, maxX: 0, minY: 0, maxY: 0 },
 
     init() {
         ConfigHelper.log('Инициализация карты...');
+        
+        // Определяем мобильное устройство
+        this.isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
 
         this.svg = document.getElementById('transportMap');
         if (!this.svg) return false;
@@ -40,14 +57,13 @@ const MapManager = {
             this.svg.appendChild(this.mapGroup);
         }
     
-        // 1. Слой для маршрутов (снизу)
+        // Слои
         this.routesGroup = document.getElementById('routesGroup');
         if (!this.routesGroup) {
             this.routesGroup = Utils.createSVGElement('g', { id: 'routesGroup' });
             this.mapGroup.appendChild(this.routesGroup);
         }
 
-        // 2. Слой для остановок (сверху)
         this.stopsGroup = document.getElementById('stopsGroup');
         if (!this.stopsGroup) {
             this.stopsGroup = Utils.createSVGElement('g', { id: 'stopsGroup' });
@@ -55,11 +71,6 @@ const MapManager = {
         }
 
         this.initControls();
-
-        const rect = this.svg.getBoundingClientRect();
-        console.log('SVG Real Size:', rect.width, rect.height);
-        console.log('SVG ViewBox:', this.svg.getAttribute('viewBox'));
-
         return true;
     },
 
@@ -68,55 +79,8 @@ const MapManager = {
         if (this.stopsGroup) this.stopsGroup.innerHTML = '';
         this.drawnStops.clear();
         this.drawnRoutes.clear();
-    },
-
-    calculateProjection(stops) {
-        if (!stops.length) return;
-
-        let minLat = Infinity, maxLat = -Infinity;
-        let minLon = Infinity, maxLon = -Infinity;
-
-        stops.forEach(stop => {
-            if (stop.lat < minLat) minLat = stop.lat;
-            if (stop.lat > maxLat) maxLat = stop.lat;
-            if (stop.lon < minLon) minLon = stop.lon;
-            if (stop.lon > maxLon) maxLon = stop.lon;
-        });
-
-        const width = this.svg.clientWidth - (CONFIG.MAP.PADDING * 2);
-        const height = this.svg.clientHeight - (CONFIG.MAP.PADDING * 2);
-
-        // Коррекция широты для Душанбе (чтобы карта была пропорциональной)
-        const latCorrection = 1.0; 
-        
-        const latRange = maxLat - minLat;
-        const lonRange = (maxLon - minLon) * latCorrection;
-
-        // ВАЖНО: Берем меньший масштаб, чтобы поместилось всё и не растянулось
-        const scaleX = width / lonRange;
-        const scaleY = height / latRange;
-        const finalScale = Math.min(scaleX, scaleY);
-
-        // Центрируем контент
-        const contentWidth = lonRange * finalScale;
-        const contentHeight = latRange * finalScale;
-        
-        const offsetX = (this.svg.clientWidth - contentWidth) / 2;
-        const offsetY = (this.svg.clientHeight - contentHeight) / 2;
-
-        this.projection = {
-            minLat, maxLat, minLon, maxLon,
-            scale: finalScale,
-            offsetX, offsetY
-        };
-    },
-
-    project(lat, lon) {
-        // Используем единый scale
-        const x = (lon - this.projection.minLon) * this.projection.scale + this.projection.offsetX;
-        // Y инвертируем (0 сверху)
-        const y = (this.projection.maxLat - lat) * this.projection.scale + this.projection.offsetY;
-        return { x, y };
+        this.bboxCache.clear();
+        this.visibleElements.clear();
     },
 
     drawScheme(stops, routes) {
@@ -125,19 +89,16 @@ const MapManager = {
 
         this.clear();
 
-        // ВАЖНО: Вместо clientWidth/Height используем константу
-        const virtualSize = CONFIG.MAP.RESOLUTION; 
+        const virtualSize = CONFIG.MAP.RESOLUTION;
         
-        // Устанавливаем viewBox, чтобы SVG знал, что внутри него сетка 2000x2000
         this.svg.setAttribute('viewBox', `0 0 ${virtualSize} ${virtualSize}`);
         this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-        // Теперь создаем трансформатор координат на базе этого виртуального квадрата
         this.transformer = Utils.createCoordinateTransformer(
             stops, virtualSize, virtualSize, CONFIG.MAP.PADDING
         );
 
-        // Рассчитываем координаты остановок в системе 2000x2000
+        // Рассчитываем координаты остановок
         stops.forEach(stop => {
             const coords = this.transformer.toScheme(stop.latitude, stop.longitude);
             stop.x = coords.x;
@@ -147,21 +108,44 @@ const MapManager = {
         this.drawRoutes(stops, routes);
         this.drawStops(stops);
         this.updateLegend(routes);
+        
+        // НОВОЕ: Начальный расчет viewport
+        this.updateViewportBounds();
+    },
+
+    /**
+     * НОВОЕ: Расчет границ видимой области
+     */
+    updateViewportBounds() {
+        const rect = this.svg.getBoundingClientRect();
+        const padding = 100; // Запас для плавности
+        
+        this.viewportBounds = {
+            minX: (-this.translateX - padding) / this.scale,
+            maxX: (-this.translateX + rect.width + padding) / this.scale,
+            minY: (-this.translateY - padding) / this.scale,
+            maxY: (-this.translateY + rect.height + padding) / this.scale
+        };
+    },
+
+    /**
+     * НОВОЕ: Проверка видимости элемента
+     */
+    isElementVisible(x, y) {
+        return x >= this.viewportBounds.minX && 
+               x <= this.viewportBounds.maxX &&
+               y >= this.viewportBounds.minY && 
+               y <= this.viewportBounds.maxY;
     },
 
     drawRoutes(stops, routes) {
         ConfigHelper.log('Рисуем маршруты...');
         
-        const routesGroup = Utils.createSVGElement('g', {
-            id: 'routesGroup'
-        });
-        this.mapGroup.appendChild(routesGroup);
-        
         routes.forEach((route, index) => {
             if (route.path && route.path.length > 0) {
-                this.drawRoutePath(route, routesGroup, index);
+                this.drawRoutePath(route, this.routesGroup, index);
             } else if (route.stopsList && route.stopsList.length > 1) {
-                this.drawRouteByStops(route, routesGroup, index);
+                this.drawRouteByStops(route, this.routesGroup, index);
             }
         });
         
@@ -173,7 +157,12 @@ const MapManager = {
             return this.transformer.toScheme(point.lat, point.lng);
         });
         
-        const simplifiedPath = Utils.simplifyPath(pathPoints, CONFIG.MAP.PATH_SIMPLIFICATION_TOLERANCE);
+        // УЛУЧШЕНО: Адаптивное упрощение
+        const tolerance = this.isMobile ? 
+            CONFIG.MAP.PATH_SIMPLIFICATION_TOLERANCE * 1.5 : 
+            CONFIG.MAP.PATH_SIMPLIFICATION_TOLERANCE;
+        
+        const simplifiedPath = Utils.simplifyPath(pathPoints, tolerance);
         const pathString = this.generateSmoothPath(simplifiedPath);
         const color = route.color || ConfigHelper.getRouteColor(index);
         
@@ -190,17 +179,20 @@ const MapManager = {
             'data-route-name': route.name
         });
         
-        pathElement.addEventListener('mouseenter', () => {
-            if (!this.highlightedRoute) {
-                pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH_HOVER);
-            }
-        });
-        
-        pathElement.addEventListener('mouseleave', () => {
-            if (!this.highlightedRoute) {
-                pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH);
-            }
-        });
+        // УЛУЧШЕНО: Отключаем ховер на мобильных
+        if (!this.isMobile) {
+            pathElement.addEventListener('mouseenter', () => {
+                if (!this.highlightedRoute) {
+                    pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH_HOVER);
+                }
+            });
+            
+            pathElement.addEventListener('mouseleave', () => {
+                if (!this.highlightedRoute) {
+                    pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH);
+                }
+            });
+        }
         
         pathElement.addEventListener('click', () => {
             this.showRouteDetails(route);
@@ -212,7 +204,6 @@ const MapManager = {
 
     drawRouteByStops(route, group, index) {
         const stops = route.stopsList.filter(s => s.x !== undefined && s.y !== undefined);
-        
         if (stops.length < 2) return;
         
         const points = stops.map(s => ({ x: s.x, y: s.y }));
@@ -231,17 +222,19 @@ const MapManager = {
             'data-route-id': route.id
         });
         
-        pathElement.addEventListener('mouseenter', () => {
-            if (!this.highlightedRoute) {
-                pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH_HOVER);
-            }
-        });
-        
-        pathElement.addEventListener('mouseleave', () => {
-            if (!this.highlightedRoute) {
-                pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH);
-            }
-        });
+        if (!this.isMobile) {
+            pathElement.addEventListener('mouseenter', () => {
+                if (!this.highlightedRoute) {
+                    pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH_HOVER);
+                }
+            });
+            
+            pathElement.addEventListener('mouseleave', () => {
+                if (!this.highlightedRoute) {
+                    pathElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH);
+                }
+            });
+        }
         
         pathElement.addEventListener('click', () => {
             this.showRouteDetails(route);
@@ -253,6 +246,15 @@ const MapManager = {
 
     generateSmoothPath(points) {
         if (points.length < 2) return '';
+        
+        // УЛУЧШЕНО: Упрощенный путь на мобильных
+        if (this.isMobile && points.length < 4) {
+            let path = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                path += ` L ${points[i].x} ${points[i].y}`;
+            }
+            return path;
+        }
         
         if (points.length < 4) {
             let path = `M ${points[0].x} ${points[0].y}`;
@@ -338,9 +340,6 @@ const MapManager = {
         panel.classList.add('show');
     },
 
-    /**
-     * НОВОЕ: Подсветка маршрута на карте при выборе из легенды
-     */
     highlightRouteOnMap(routeId) {
         const routeData = this.drawnRoutes.get(routeId);
         if (!routeData) {
@@ -348,13 +347,11 @@ const MapManager = {
             return;
         }
 
-        // Сбрасываем предыдущую подсветку
         this.clearRouteHighlight();
         
         this.highlightedRoute = routeId;
         const { element, route } = routeData;
         
-        // Затемняем все остальные маршруты
         this.drawnRoutes.forEach((data, id) => {
             if (id !== routeId) {
                 data.element.style.opacity = '0.15';
@@ -362,12 +359,10 @@ const MapManager = {
             }
         });
         
-        // Подсвечиваем выбранный маршрут
         element.style.opacity = '1';
         element.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH_HOVER + 2);
         element.style.filter = 'drop-shadow(0 0 8px rgba(0,0,0,0.5))';
         
-        // Подсвечиваем остановки этого маршрута
         if (route.stopsList) {
             route.stopsList.forEach(stop => {
                 const drawnStop = this.drawnStops.get(stop.id);
@@ -376,7 +371,6 @@ const MapManager = {
                     drawnStop.circle.setAttribute('fill', element.getAttribute('stroke'));
                     drawnStop.circle.style.filter = 'drop-shadow(0 0 4px rgba(0,0,0,0.5))';
                     
-                    // Показываем названия остановок этого маршрута
                     drawnStop.label.style.display = 'block';
                     drawnStop.label.style.fontWeight = '700';
                     drawnStop.label.style.fill = element.getAttribute('stroke');
@@ -386,7 +380,6 @@ const MapManager = {
         
         ConfigHelper.log('Маршрут подсвечен:', route.name);
         
-        // Автоматически сбрасываем через 10 секунд
         setTimeout(() => {
             if (this.highlightedRoute === routeId) {
                 this.clearRouteHighlight();
@@ -394,20 +387,15 @@ const MapManager = {
         }, 10000);
     },
 
-    /**
-     * НОВОЕ: Очистка подсветки маршрута
-     */
     clearRouteHighlight() {
         if (!this.highlightedRoute) return;
         
-        // Восстанавливаем все маршруты
         this.drawnRoutes.forEach((data) => {
             data.element.style.opacity = '1';
             data.element.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH);
             data.element.style.filter = '';
         });
         
-        // Восстанавливаем все остановки
         this.drawnStops.forEach((data) => {
             const isSelected = this.selectedStop && 
                              String(this.selectedStop.id) === String(data.circle.parentElement?.dataset?.stopId);
@@ -421,19 +409,11 @@ const MapManager = {
         });
         
         this.highlightedRoute = null;
-        this.updateLabelsVisibility();
+        this.queueLabelUpdate();
     },
 
-    /**
-     * ИСПРАВЛЕНО: Отрисовка остановок - текст над точками
-     */
     drawStops(stops) {
         ConfigHelper.log('Рисуем остановки...');
-        
-        const stopsGroup = Utils.createSVGElement('g', {
-            id: 'stopsGroup'
-        });
-        this.mapGroup.appendChild(stopsGroup);
         
         stops.forEach(stop => {
             const stopGroup = Utils.createSVGElement('g', {
@@ -441,7 +421,6 @@ const MapManager = {
                 class: 'stop-group'
             });
             
-            // Круг остановки
             const circle = Utils.createSVGElement('circle', {
                 cx: stop.x,
                 cy: stop.y,
@@ -452,17 +431,19 @@ const MapManager = {
                 class: 'stop-circle'
             });
             
-            circle.addEventListener('mouseenter', () => {
-                if (!this.highlightedRoute) {
-                    circle.setAttribute('r', CONFIG.VISUAL.STOP_RADIUS_HOVER);
-                }
-            });
-            
-            circle.addEventListener('mouseleave', () => {
-                if (this.selectedStop?.id !== stop.id && !this.highlightedRoute) {
-                    circle.setAttribute('r', CONFIG.VISUAL.STOP_RADIUS);
-                }
-            });
+            if (!this.isMobile) {
+                circle.addEventListener('mouseenter', () => {
+                    if (!this.highlightedRoute) {
+                        circle.setAttribute('r', CONFIG.VISUAL.STOP_RADIUS_HOVER);
+                    }
+                });
+                
+                circle.addEventListener('mouseleave', () => {
+                    if (this.selectedStop?.id !== stop.id && !this.highlightedRoute) {
+                        circle.setAttribute('r', CONFIG.VISUAL.STOP_RADIUS);
+                    }
+                });
+            }
             
             circle.addEventListener('click', () => {
                 this.selectStop(stop);
@@ -470,25 +451,23 @@ const MapManager = {
             
             stopGroup.appendChild(circle);
             
-            // Название остановки
             const label = Utils.createSVGElement('text', {
                 x: stop.x + CONFIG.VISUAL.LABEL_OFFSET_X,
                 y: stop.y + CONFIG.VISUAL.LABEL_OFFSET_Y,
                 class: 'stop-label',
-                style: 'display: none;' // Изначально скрыто
+                style: 'display: none;'
             });
             label.textContent = stop.name;
             stopGroup.appendChild(label);
             
-            stopsGroup.appendChild(stopGroup);
-            this.drawnStops.set(stop.id, { group: stopGroup, circle, label });
+            this.stopsGroup.appendChild(stopGroup);
+            this.drawnStops.set(stop.id, { group: stopGroup, circle, label, stop });
         });
     },
 
     selectStop(stop) {
         ConfigHelper.log('Выбрана остановка:', stop.name);
         
-        // Сбрасываем подсветку маршрута
         this.clearRouteHighlight();
         
         if (this.selectedStop) {
@@ -574,30 +553,6 @@ const MapManager = {
         panel.classList.add('show');
     },
 
-    showRouteInfo(routeId, stop1, stop2) {
-        const panel = document.getElementById('infoPanel');
-        const title = document.getElementById('infoTitle');
-        const content = document.getElementById('infoContent');
-        
-        title.textContent = `Маршрут между остановками`;
-        
-        content.innerHTML = `
-            <div style="margin-bottom: 8px;">
-                <strong>От:</strong> ${stop1.name}
-            </div>
-            <div style="margin-bottom: 16px;">
-                <strong>До:</strong> ${stop2.name}
-            </div>
-            <div style="font-size: 13px; color: #666;">
-                Расстояние: ${Utils.formatDistance(
-                    Utils.calculateDistance(stop1.latitude, stop1.longitude, stop2.latitude, stop2.longitude)
-                )}
-            </div>
-        `;
-        
-        panel.classList.add('show');
-    },
-
     updateLegend(routes) {
         const legendContent = document.getElementById('legendContent');
         if (!legendContent) return;
@@ -651,7 +606,6 @@ const MapManager = {
                     <div class="legend-label">${routeNumber}</div>
                 `;
                 
-                // Клик для подсветки маршрута
                 item.addEventListener('click', () => {
                     this.highlightRouteOnMap(route.id);
                     this.showRouteDetails(route);
@@ -662,33 +616,8 @@ const MapManager = {
         });
     },
 
-    extractRouteNumber(name) {
-        if (!name) return 'N/A';
-        const match = name.match(/^(\w+)\s/);
-        return match ? match[1] : name.substring(0, 20);
-    },
-
-    highlightRoute(route) {
-        this.drawnRoutes.forEach(routeElement => {
-            routeElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH);
-            routeElement.style.opacity = '0.5';
-        });
-        
-        const routeElement = this.drawnRoutes.get(route.id);
-        if (routeElement) {
-            routeElement.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH_HOVER);
-            routeElement.style.opacity = '1';
-            
-            setTimeout(() => {
-                this.drawnRoutes.forEach(el => {
-                    el.setAttribute('stroke-width', CONFIG.VISUAL.ROUTE_WIDTH);
-                    el.style.opacity = '1';
-                });
-            }, 3000);
-        }
-    },
-
     initControls() {
+        // Mouse события
         this.svg.addEventListener('mousedown', (e) => {
             this.isDragging = true;
             this.dragStartX = e.clientX - this.translateX;
@@ -711,27 +640,31 @@ const MapManager = {
         this.svg.addEventListener('mouseup', stopDragging);
         this.svg.addEventListener('mouseleave', stopDragging);
         
-        this.svg.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            const rect = this.svg.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            
-            const newScale = Math.max(
-                CONFIG.MAP.MIN_ZOOM,
-                Math.min(CONFIG.MAP.MAX_ZOOM, this.scale * delta)
-            );
-            
-            if (newScale !== this.scale) {
-                this.translateX = mouseX - (mouseX - this.translateX) * (newScale / this.scale);
-                this.translateY = mouseY - (mouseY - this.translateY) * (newScale / this.scale);
-                this.scale = newScale;
-                this.updateTransform();
-            }
-        });
-        // Тач-события (для телефона)
+        // УЛУЧШЕНО: Throttled wheel
+        this.svg.addEventListener('wheel', 
+            Utils.throttle((e) => {
+                e.preventDefault();
+                
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const rect = this.svg.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const newScale = Math.max(
+                    CONFIG.MAP.MIN_ZOOM,
+                    Math.min(CONFIG.MAP.MAX_ZOOM, this.scale * delta)
+                );
+                
+                if (newScale !== this.scale) {
+                    this.translateX = mouseX - (mouseX - this.translateX) * (newScale / this.scale);
+                    this.translateY = mouseY - (mouseY - this.translateY) * (newScale / this.scale);
+                    this.scale = newScale;
+                    this.updateTransform();
+                }
+            }, 16) // ~60fps
+        );
+        
+        // Touch события
         this.svg.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
         this.svg.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
         this.svg.addEventListener('touchend', this.handleTouchEnd.bind(this));
@@ -739,44 +672,47 @@ const MapManager = {
 
     handleTouchStart(e) {
         if (e.touches.length === 1) {
-            // Один палец - перемещение
             this.isDragging = true;
             this.dragStartX = e.touches[0].clientX - this.translateX;
             this.dragStartY = e.touches[0].clientY - this.translateY;
         } else if (e.touches.length === 2) {
-            // Два пальца - зум
             this.isPinching = true;
             this.lastTouchDistance = this.getTouchDistance(e.touches);
             this.initialPinchScale = this.scale;
-            e.preventDefault(); // Чтобы не зумился весь сайт
+            e.preventDefault();
         }
     },
 
     handleTouchMove(e) {
-        // Обязательно блокируем стандартное поведение браузера
         if (e.cancelable) e.preventDefault();
 
         if (e.touches.length === 1 && this.isDragging && !this.isPinching) {
-            // Двигаем карту
             this.translateX = e.touches[0].clientX - this.dragStartX;
             this.translateY = e.touches[0].clientY - this.dragStartY;
             this.updateTransform();
         } else if (e.touches.length === 2 && this.isPinching) {
-            // Зумим карту
             const currentDistance = this.getTouchDistance(e.touches);
+            
             if (this.lastTouchDistance > 0) {
                 const ratio = currentDistance / this.lastTouchDistance;
-                // Ограничиваем зум согласно конфигу
                 const newScale = Math.min(Math.max(this.initialPinchScale * ratio, CONFIG.MAP.MIN_ZOOM), CONFIG.MAP.MAX_ZOOM);
                 
                 if (newScale !== this.scale) {
-                    const center = this.getTouchCenter(e.touches);
+                    // ВАЖНО: Получаем координаты относительно SVG контейнера
+                    const rect = this.svg.getBoundingClientRect();
+                    const rawCenter = this.getTouchCenter(e.touches);
+                    
+                    // Корректируем координаты центра (как в wheel)
+                    const centerX = rawCenter.x - rect.left;
+                    const centerY = rawCenter.y - rect.top;
+
                     const scaleChange = newScale / this.scale;
                     
-                    this.translateX = center.x - (center.x - this.translateX) * scaleChange;
-                    this.translateY = center.y - (center.y - this.translateY) * scaleChange;
-                    this.scale = newScale;
+                    // Формула теперь работает с правильным центром
+                    this.translateX = centerX - (centerX - this.translateX) * scaleChange;
+                    this.translateY = centerY - (centerY - this.translateY) * scaleChange;
                     
+                    this.scale = newScale;
                     this.updateTransform();
                 }
             }
@@ -811,37 +747,65 @@ const MapManager = {
                 `translate(${this.translateX}, ${this.translateY}) scale(${this.scale})`
             );
         }
-        this.updateLabelsVisibility();
+        
+        // НОВОЕ: Обновляем viewport и ставим обновление меток в очередь
+        this.updateViewportBounds();
+        this.queueLabelUpdate();
     },
 
     /**
-     * ИСПРАВЛЕНО: Улучшенная адаптация при zoom
+     * КРИТИЧЕСКАЯ ОПТИМИЗАЦИЯ: Очередь обновлений меток
+     * Вместо обновления при каждом движении - используем requestAnimationFrame
+     */
+    queueLabelUpdate() {
+        if (this.updateQueued) return;
+        
+        this.updateQueued = true;
+        requestAnimationFrame(() => {
+            this.updateQueued = false;
+            this.updateLabelsVisibility();
+        });
+    },
+
+    /**
+     * КРИТИЧЕСКИ ПЕРЕРАБОТАНО: Оптимизированное обновление видимости меток
      */
     updateLabelsVisibility() {
+        const now = performance.now();
+        // НОВОЕ: Throttle - минимум 100мс между обновлениями на мобильных
+        if (this.isMobile && now - this.lastUpdateTime < 100) {
+            return;
+        }
+        this.lastUpdateTime = now;
+        
         const showLabels = this.scale > CONFIG.VISUAL.LABEL_MIN_ZOOM;
         const displayedNames = new Set();
         const labelSpacing = CONFIG.VISUAL.LABEL_MIN_DISTANCE / this.scale;
-
-        const labels = document.querySelectorAll('.stop-label');
-        const circles = document.querySelectorAll('.stop-circle');
-        const routes = document.querySelectorAll('.route-line');
-        
         const visibleLabels = [];
         
-        // ИСПРАВЛЕНО: Адаптивный размер текста
+        // НОВОЕ: Адаптивный размер текста
         const baseFontSize = 11;
         const scaledFontSize = Math.max(8, Math.min(14, baseFontSize / Math.sqrt(this.scale)));
         
-        labels.forEach((label, idx) => {
+        // КРИТИЧНО: Сначала обрабатываем только видимые остановки
+        this.drawnStops.forEach((data, stopId) => {
+            const { label, circle, stop } = data;
             const name = label.textContent;
-            const stopId = label.parentElement?.dataset?.stopId;
             const isSelected = this.selectedStop && String(this.selectedStop.id) === String(stopId);
-            
-            // Для подсвеченного маршрута показываем все остановки
             const isInHighlightedRoute = this.highlightedRoute && 
                                         this.drawnRoutes.get(this.highlightedRoute)?.route.stopsList
                                         ?.some(s => String(s.id) === String(stopId));
 
+            // Проверка видимости в viewport
+            if (!this.isElementVisible(stop.x, stop.y)) {
+                label.style.display = 'none';
+                circle.style.display = 'none';
+                return;
+            }
+            
+            circle.style.display = '';
+
+            // Выбранные и в подсвеченном маршруте всегда показываем
             if (isSelected || isInHighlightedRoute) {
                 label.style.display = 'block';
                 label.style.fontWeight = 'bold';
@@ -856,21 +820,33 @@ const MapManager = {
                 if (displayedNames.has(name)) {
                     label.style.display = 'none';
                 } else {
-                    let hasCollision = false;
-                    try {
-                        const bbox = label.getBBox();
-                        for (const existingLabel of visibleLabels) {
-                            const existingBbox = existingLabel.getBBox();
-                            const distance = Math.sqrt(
-                                Math.pow(bbox.x - existingBbox.x, 2) + 
-                                Math.pow(bbox.y - existingBbox.y, 2)
-                            );
-                            if (distance < labelSpacing) {
-                                hasCollision = true;
-                                break;
-                            }
+                    // ОПТИМИЗАЦИЯ: Используем кэш для getBBox
+                    let bbox = this.bboxCache.get(stopId);
+                    if (!bbox) {
+                        try {
+                            bbox = label.getBBox();
+                            this.bboxCache.set(stopId, bbox);
+                        } catch (e) {
+                            label.style.display = 'none';
+                            return;
                         }
-                    } catch (e) {}
+                    }
+                    
+                    let hasCollision = false;
+                    for (const existingLabel of visibleLabels) {
+                        const existingStopId = existingLabel.parentElement?.dataset?.stopId;
+                        const existingBbox = this.bboxCache.get(parseInt(existingStopId));
+                        if (!existingBbox) continue;
+                        
+                        const distance = Math.sqrt(
+                            Math.pow(bbox.x - existingBbox.x, 2) + 
+                            Math.pow(bbox.y - existingBbox.y, 2)
+                        );
+                        if (distance < labelSpacing) {
+                            hasCollision = true;
+                            break;
+                        }
+                    }
 
                     if (hasCollision) {
                         label.style.display = 'none';
@@ -885,16 +861,18 @@ const MapManager = {
             }
         });
 
-        // ИСПРАВЛЕНО: Адаптивная толщина линий
-        routes.forEach(line => {
-            if (this.highlightedRoute) return; // Не трогаем если маршрут подсвечен
-            
-            const baseWidth = parseFloat(line.getAttribute('data-base-width')) || CONFIG.VISUAL.ROUTE_WIDTH;
-            const scaledWidth = Math.max(1, baseWidth / Math.pow(this.scale, 0.5));
-            line.style.strokeWidth = scaledWidth;
-        });
+        // ОПТИМИЗАЦИЯ: Адаптивная толщина линий (пропускаем если маршрут подсвечен)
+        if (!this.highlightedRoute) {
+            const routes = document.querySelectorAll('.route-line');
+            routes.forEach(line => {
+                const baseWidth = parseFloat(line.getAttribute('data-base-width')) || CONFIG.VISUAL.ROUTE_WIDTH;
+                const scaledWidth = Math.max(1, baseWidth / Math.pow(this.scale, 0.5));
+                line.style.strokeWidth = scaledWidth;
+            });
+        }
         
-        // ИСПРАВЛЕНО: Адаптивный размер точек
+        // ОПТИМИЗАЦИЯ: Адаптивный размер точек
+        const circles = document.querySelectorAll('.stop-circle');
         circles.forEach(circle => {
             const stopId = circle.parentElement?.dataset?.stopId;
             const isSelected = this.selectedStop && String(this.selectedStop.id) === String(stopId);
@@ -912,18 +890,6 @@ const MapManager = {
             const scaledStroke = Math.max(1, 2 / Math.pow(this.scale, 0.5));
             circle.style.strokeWidth = scaledStroke;
         });
-    },
-
-    clear() {
-        if (this.mapGroup) {
-            while (this.mapGroup.firstChild) {
-                this.mapGroup.removeChild(this.mapGroup.firstChild);
-            }
-        }
-        this.drawnStops.clear();
-        this.drawnRoutes.clear();
-        this.selectedStop = null;
-        this.highlightedRoute = null;
     },
 
     drawRouteOnMap(route) {
@@ -1089,7 +1055,7 @@ const MapManager = {
     }
 };
 
-// Глобальные функции управления для кнопок
+// Глобальные функции управления
 function zoomIn() {
     const centerX = MapManager.svg.clientWidth / 2;
     const centerY = MapManager.svg.clientHeight / 2;

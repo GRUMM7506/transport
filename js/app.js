@@ -2,7 +2,39 @@
  * app.js
  * Главный файл приложения - инициализация и координация всех модулей
  */
+function autoConfigureForDevice() {
+    const isMobile = window.innerWidth <= 768;
+    const isLowEnd = (navigator.hardwareConcurrency || 4) <= 2;
+    
+    if (isMobile) {
+        ConfigHelper.log('Mobile device detected, adjusting config...');
+        
+        // Уменьшаем детализацию
+        CONFIG.MAP.RESOLUTION = Math.min(CONFIG.MAP.RESOLUTION, 600);
+        CONFIG.MAP.PATH_SIMPLIFICATION_TOLERANCE *= 1.5;
+        CONFIG.VISUAL.LABEL_MIN_ZOOM = Math.max(CONFIG.VISUAL.LABEL_MIN_ZOOM, 5);
+        CONFIG.VISUAL.LABEL_MIN_DISTANCE *= 1.5;
+        
+        // Увеличиваем задержки
+        CONFIG.SEARCH.DEBOUNCE_DELAY = 400;
+    }
+    
+    if (isLowEnd) {
+        ConfigHelper.log('Low-end device detected, applying aggressive optimizations...');
+        
+        // Еще более агрессивные настройки
+        CONFIG.MAP.RESOLUTION = Math.min(CONFIG.MAP.RESOLUTION, 400);
+        CONFIG.MAP.PATH_SIMPLIFICATION_TOLERANCE *= 2;
+        CONFIG.VISUAL.LABEL_MIN_ZOOM = 6;
+        CONFIG.SEARCH.DEBOUNCE_DELAY = 500;
+    }
+    
+    ConfigHelper.log('Config adjusted for device:', CONFIG);
+}
 
+ConfigHelper.log('Приложение подготовлено к запуску');
+ConfigHelper.log('Для отладки используйте: window.debug');
+ConfigHelper.log('Для информации о производительности: window.debug.performance()');
 const App = {
     // Состояние приложения
     isInitialized: false,
@@ -23,6 +55,17 @@ const App = {
             // 0. Инициализация темы (до загрузки данных)
             ConfigHelper.log('Шаг 0: Инициализация темы...');
             ThemeManager.init();
+            
+            // 0.5. НОВОЕ: Инициализация мобильных оптимизаций
+            ConfigHelper.log('Шаг 0.5: Проверка устройства и оптимизации...');
+            if (window.innerWidth <= 768 || 'ontouchstart' in window) {
+                if (typeof MobileOptimizer !== 'undefined') {
+                    MobileOptimizer.init();
+                }
+                if (typeof ResourceOptimizer !== 'undefined') {
+                    ResourceOptimizer.init();
+                }
+            }
             
             // 1. Загрузка данных
             ConfigHelper.log('Шаг 1: Загрузка данных...');
@@ -59,7 +102,12 @@ const App = {
             // 8. Настройка дополнительных обработчиков
             this.setupGlobalHandlers();
             
-            // 9. Готово
+            // 9. НОВОЕ: Инициализация sidebar на мобильных
+            if (window.innerWidth <= 768 && typeof SidebarManager !== 'undefined') {
+                SidebarManager.init();
+            }
+            
+            // 10. Готово
             this.isInitialized = true;
             this.isLoading = false;
             this.showLoading(false);
@@ -67,6 +115,16 @@ const App = {
             ConfigHelper.log('========================================');
             ConfigHelper.log('Приложение успешно запущено!');
             ConfigHelper.log('Статистика:', DataManager.getStats());
+            
+            // НОВОЕ: Логируем информацию об оптимизациях
+            if (MobileOptimizer && MobileOptimizer.isActive) {
+                ConfigHelper.log('Мобильные оптимизации:', 'АКТИВНЫ');
+                ConfigHelper.log('Device Info:', MobileOptimizer.deviceInfo);
+            }
+            if (ResourceOptimizer && ResourceOptimizer.isActive) {
+                ConfigHelper.log('Оптимизатор ресурсов:', 'АКТИВЕН');
+            }
+            
             ConfigHelper.log('========================================');
             
             // Фокус на поиске
@@ -388,6 +446,45 @@ const App = {
         resetView();
         
         ConfigHelper.log('Приложение сброшено');
+    },
+
+    getPerformanceInfo() {
+        const info = {
+            isInitialized: this.isInitialized,
+            isMobile: window.innerWidth <= 768,
+            
+            // Информация о карте
+            map: {
+                scale: MapManager.scale,
+                drawnStopsCount: MapManager.drawnStops.size,
+                drawnRoutesCount: MapManager.drawnRoutes.size,
+                bboxCacheSize: MapManager.bboxCache?.size || 0,
+                lastUpdateTime: MapManager.lastUpdateTime || 0
+            },
+            
+            // Информация об оптимизациях
+            optimizations: {
+                mobileActive: MobileOptimizer?.isActive || false,
+                resourceActive: ResourceOptimizer?.isActive || false,
+                deviceInfo: MobileOptimizer?.deviceInfo || null
+            },
+            
+            // Информация о памяти
+            memory: performance.memory ? {
+                usedJSHeapSize: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) + ' MB',
+                totalJSHeapSize: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024) + ' MB',
+                jsHeapSizeLimit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024) + ' MB'
+            } : 'Not available',
+            
+            // Тайминги
+            timing: performance.timing ? {
+                pageLoadTime: performance.timing.loadEventEnd - performance.timing.navigationStart + ' ms',
+                domReady: performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart + ' ms',
+                resourceLoadTime: performance.timing.loadEventEnd - performance.timing.domContentLoadedEventEnd + ' ms'
+            } : 'Not available'
+        };
+        
+        return info;
     }
 };
 
@@ -728,7 +825,7 @@ const GeoLocationManager = {
             this.userMarker.remove();
             this.userMarker = null;
         }
-    }
+    },
 };
 
 // Глобальная функция переключения темы
@@ -739,6 +836,8 @@ window.toggleTheme = function() {
 // Запуск приложения при загрузке страницы
 window.addEventListener('DOMContentLoaded', () => {
     ConfigHelper.log('DOM загружен, запуск приложения...');
+    // Вызываем перед инициализацией
+    autoConfigureForDevice();
     App.init();
 });
 
@@ -769,6 +868,7 @@ window.Utils = Utils;
 // Дополнительные полезные команды для консоли
 window.debug = {
     info: () => App.exportDebugInfo(),
+    performance: () => App.getPerformanceInfo(),  // НОВОЕ
     reset: () => App.reset(),
     reload: () => location.reload(),
     stats: () => DataManager.getStats(),
@@ -776,7 +876,68 @@ window.debug = {
     routes: () => DataManager.routes,
     theme: () => ThemeManager.currentTheme,
     toggleTheme: () => ThemeManager.toggle(),
-    findMe: () => GeoLocationManager.findMe()
+    findMe: () => GeoLocationManager.findMe(),
+    
+    // НОВОЕ: Утилиты для тестирования производительности
+    fps: () => {
+        let lastTime = performance.now();
+        let frames = 0;
+        let fpsDisplay = document.createElement('div');
+        fpsDisplay.style.cssText = 'position:fixed;top:10px;right:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:10px;font-family:monospace;z-index:10000;';
+        document.body.appendChild(fpsDisplay);
+        
+        function measureFPS() {
+            frames++;
+            const now = performance.now();
+            if (now >= lastTime + 1000) {
+                const fps = Math.round(frames * 1000 / (now - lastTime));
+                fpsDisplay.textContent = `FPS: ${fps}`;
+                frames = 0;
+                lastTime = now;
+            }
+            requestAnimationFrame(measureFPS);
+        }
+        measureFPS();
+        
+        return 'FPS counter started (top right corner)';
+    },
+    
+    clearCache: () => {
+        if (MapManager.bboxCache) {
+            const size = MapManager.bboxCache.size;
+            MapManager.bboxCache.clear();
+            return `Cleared ${size} cached items`;
+        }
+        return 'No cache to clear';
+    },
+    
+    toggleOptimizations: (enable) => {
+        if (enable && MobileOptimizer) {
+            MobileOptimizer.init();
+            return 'Optimizations enabled';
+        } else if (!enable && MobileOptimizer) {
+            MobileOptimizer.isActive = false;
+            return 'Optimizations disabled';
+        }
+        return 'MobileOptimizer not available';
+    },
+    
+    // Simulate low-end device
+    simulateLowEnd: () => {
+        if (MobileOptimizer) {
+            MobileOptimizer.deviceInfo = {
+                isMobile: true,
+                isTouch: true,
+                screenWidth: 375,
+                screenHeight: 667,
+                pixelRatio: 2,
+                isLowEnd: true
+            };
+            MobileOptimizer.applyOptimizations();
+            return 'Low-end device simulation enabled';
+        }
+        return 'MobileOptimizer not available';
+    }
 };
 
 // Глобальная функция для кнопок в попапе
@@ -836,6 +997,35 @@ document.getElementById('inpPathSimplification').oninput = function() {
     document.getElementById('lblPathSimplification').innerText = this.value;
 }
 
+window.refreshMap = function() {
+    ConfigHelper.log('Принудительная перерисовка карты пользователем...');
+    
+    // Показываем индикатор загрузки
+    App.showLoading(true);
+    
+    // Небольшая задержка, чтобы браузер успел отрисовать лоадер
+    setTimeout(() => {
+        try {
+            if (MapManager && DataManager.stops.length > 0) {
+                // Вызываем основную функцию отрисовки
+                MapManager.drawScheme(DataManager.stops, DataManager.routes);
+                
+                // Если есть активная тема, применяем её повторно
+                if (typeof ThemeManager !== 'undefined') {
+                    ThemeManager.updateMapTheme(ThemeManager.currentTheme);
+                }
+                
+                ConfigHelper.log('Карта успешно перерисована');
+            }
+        } catch (error) {
+            ConfigHelper.error('Ошибка при перерисовке карты:', error);
+        } finally {
+            // Скрываем индикатор загрузки
+            App.showLoading(false);
+        }
+    }, 100);
+};
+
 window.applySettings = function() {
     // 1. Сохраняем в конфиг
     CONFIG.VISUAL.STOP_RADIUS = parseFloat(document.getElementById('inpRadius').value);
@@ -849,6 +1039,39 @@ window.applySettings = function() {
         MapManager.drawScheme(DataManager.stops, DataManager.routes);
     }
 
+    window.refreshMap(); // Перерисовываем с новыми параметрами
     // 3. Закрываем
     document.getElementById('settingsModal').style.display = 'none';
 };
+
+if (CONFIG.DEBUG) {
+    // Long task detection
+    if ('PerformanceObserver' in window) {
+        const observer = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.duration > 50) { // Задачи длиннее 50ms
+                    ConfigHelper.warn('Long task detected:', {
+                        duration: Math.round(entry.duration) + 'ms',
+                        startTime: Math.round(entry.startTime) + 'ms'
+                    });
+                }
+            }
+        });
+        
+        try {
+            observer.observe({ entryTypes: ['longtask'] });
+        } catch (e) {
+            // Long task API not supported
+        }
+    }
+    
+    // Memory leak detection
+    setInterval(() => {
+        if (performance.memory) {
+            const used = performance.memory.usedJSHeapSize / 1024 / 1024;
+            if (used > 100) { // Больше 100 MB
+                ConfigHelper.warn('High memory usage:', Math.round(used) + ' MB');
+            }
+        }
+    }, 30000); // Каждые 30 секунд
+}
